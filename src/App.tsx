@@ -1,31 +1,52 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom';
+import Layout from './components/layouts/Layout.tsx';
+import ProtectedRoute from './components/layouts/ProtectedRoute.tsx';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Explore from './pages/Explore';
+import Follows from './pages/Follows';
+import MyPins from './pages/MyPins';
+import NotFound from './pages/NotFound.tsx';
+import { useEffect, useRef } from 'react';
+import { api } from './api/client.tsx';
 
-function App() {
-  const [count, setCount] = useState(0);
+const queryClient = new QueryClient();
+
+export default function App() {
+  const didFetchCsrf = useRef(false);
+  useEffect(() => {
+    if (didFetchCsrf.current) return;
+    didFetchCsrf.current = true;
+    api.get('/csrf').catch((err) => {
+      console.error('Failed to fetch CSRF token', err);
+    });
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            {/* public */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+            {/* private */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Explore />} />
+              <Route path="expore" element={<Explore />} />
+              <Route path="follows" element={<Follows />} />
+              <Route path="my-pins" element={<MyPins />} />
+              <Route path="settings/*" element={<Outlet />} />
+            </Route>
+
+            {/* fallback */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
-
-export default App;
