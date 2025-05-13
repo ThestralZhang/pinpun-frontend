@@ -1,4 +1,4 @@
-import { Button, IconButton, Popover, Whisper } from 'rsuite';
+import { Button, Popover, Whisper, Avatar } from 'rsuite';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 
 export default function UserProfile() {
@@ -14,19 +14,10 @@ export default function UserProfile() {
   );
 
   return (
-    <Whisper
-      trigger="click"
-      speaker={popover}
-      placement="bottomEnd"
-      // open={open}
-      // onOpen={() => setOpen(true)}
-    >
-      <IconButton
-        // icon={<User />}
-        circle
-        size="lg"
-        style={{ position: 'absolute', top: 16, right: 16 }}
-      />
+    <Whisper trigger="click" speaker={popover} placement="bottomEnd">
+      <Avatar circle size="sm" className="fixed! top-2 right-2">
+        {user?.name?.charAt(0).toUpperCase()}
+      </Avatar>
     </Whisper>
   );
 }

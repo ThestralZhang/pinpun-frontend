@@ -1,6 +1,6 @@
 import './App.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/layouts/Layout.tsx';
 import ProtectedRoute from './components/layouts/ProtectedRoute.tsx';
 import Login from './pages/Login';
@@ -11,6 +11,8 @@ import MyPins from './pages/MyPins';
 import NotFound from './pages/NotFound.tsx';
 import { useEffect, useRef } from 'react';
 import { api } from './api/client.tsx';
+import ProfileSettings from '@/pages/ProfileSettings';
+import FriendSettings from '@/pages/FriendSettings';
 
 const queryClient = new QueryClient();
 
@@ -39,7 +41,8 @@ export default function App() {
               <Route path="expore" element={<Explore />} />
               <Route path="follows" element={<Follows />} />
               <Route path="my-pins" element={<MyPins />} />
-              <Route path="settings/*" element={<Outlet />} />
+              <Route path="settings/profile" element={<ProfileSettings />} />
+              <Route path="settings/friends" element={<FriendSettings />} />
             </Route>
 
             {/* fallback */}
