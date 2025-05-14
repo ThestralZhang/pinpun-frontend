@@ -13,6 +13,8 @@ import { useEffect, useRef } from 'react';
 import { api } from './api/client.tsx';
 import ProfileSettings from '@/pages/ProfileSettings';
 import FriendSettings from '@/pages/FriendSettings';
+import UserHome from '@/pages/UserHome';
+import NiceModal from '@ebay/nice-modal-react';
 
 const queryClient = new QueryClient();
 
@@ -28,28 +30,31 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            {/* public */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+      <NiceModal.Provider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              {/* public */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
 
-            {/* private */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Explore />} />
-              <Route path="expore" element={<Explore />} />
-              <Route path="follows" element={<Follows />} />
-              <Route path="my-pins" element={<MyPins />} />
-              <Route path="settings/profile" element={<ProfileSettings />} />
-              <Route path="settings/friends" element={<FriendSettings />} />
+              {/* private */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Explore />} />
+                <Route path="expore" element={<Explore />} />
+                <Route path="follows" element={<Follows />} />
+                <Route path="my-pins" element={<MyPins />} />
+                <Route path="settings/profile" element={<ProfileSettings />} />
+                <Route path="settings/friends" element={<FriendSettings />} />
+                <Route path="users/:userId" element={<UserHome />} />
+              </Route>
+
+              {/* fallback */}
+              <Route path="*" element={<NotFound />} />
             </Route>
-
-            {/* fallback */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </NiceModal.Provider>
     </QueryClientProvider>
   );
 }

@@ -1,5 +1,6 @@
-import { Button, Popover, Whisper, Avatar } from 'rsuite';
+import { Button, Popover, Whisper } from 'rsuite';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
+import UserAvatar from '@/components/UserAvatar.tsx';
 
 export default function UserProfile() {
   const logout = useAuthStore((s) => s.logout);
@@ -14,10 +15,15 @@ export default function UserProfile() {
   );
 
   return (
-    <Whisper trigger="click" speaker={popover} placement="bottomEnd">
-      <Avatar circle size="sm" className="fixed! top-2 right-2">
-        {user?.name?.charAt(0).toUpperCase()}
-      </Avatar>
+    <Whisper trigger="hover" speaker={popover} placement="bottomEnd" enterable>
+      <div className="fixed! top-2 right-2">
+        <UserAvatar
+          avatarUrl={user?.avatarUrl}
+          userId={user?.userId}
+          username={user?.name}
+          size="sm"
+        />
+      </div>
     </Whisper>
   );
 }
