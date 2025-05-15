@@ -3,9 +3,13 @@ import type { IPinboardExtended } from '@/types';
 import { getPinboardsByUser } from '@/api/pinboard.ts';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import CardWall from '@/components/CardWall.tsx';
+import { useCallback } from 'react';
+import PinboardFormModal from '@/components/PinboardFormModal.tsx';
+import { useModal } from '@ebay/nice-modal-react';
 
 export default function MyPins() {
   const { user } = useAuthStore();
+  const pinboardModal = useModal(PinboardFormModal);
 
   const {
     data: pinboards = [],
@@ -16,5 +20,9 @@ export default function MyPins() {
     queryFn: () => getPinboardsByUser(user?.userId),
   });
 
-  return <CardWall cards={pinboards} />;
+  const onEditPinboard = useCallback((pinboardId: number) => {
+    pinboardModal.show({ mode: 'edit', pinboardId });
+  }, []);
+
+  return <CardWall cards={pinboards} onEditPinboard={onEditPinboard} />;
 }

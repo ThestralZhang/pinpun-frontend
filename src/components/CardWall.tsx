@@ -3,13 +3,22 @@ import PinboardCard, { type PinboardCardProps } from '@/components/PinboardCard.
 
 interface CardWallProps {
   cards: PinboardCardProps[];
+  streams?: string[];
+  onEditPinboard?: (pinboardId: number) => void;
+  onFollow?: (pinboardId: number, streamName: string) => void;
 }
 
-function CardWall({ cards }: CardWallProps) {
+function CardWall({ cards, streams, onFollow, onEditPinboard }: CardWallProps) {
   return (
     <div>
       {cards.map((card) => (
-        <PinboardCard {...card} key={card.id} />
+        <PinboardCard
+          key={card.id}
+          streams={streams}
+          onFollow={onFollow}
+          onEdit={onEditPinboard}
+          {...card}
+        />
       ))}
     </div>
   );

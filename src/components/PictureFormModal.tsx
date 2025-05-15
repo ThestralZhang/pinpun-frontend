@@ -129,7 +129,6 @@ export default NiceModal.create(function PictureFormModal({
   };
 
   const onSubmit = async (data: IPictureFormInputs) => {
-    console.log('eee', errors);
     const { picture, ...other } = data;
     await createMutation.mutateAsync({
       ...other,
@@ -138,7 +137,6 @@ export default NiceModal.create(function PictureFormModal({
     });
     onClose();
   };
-  console.log('eee', errors);
 
   return (
     <Modal

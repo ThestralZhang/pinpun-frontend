@@ -15,6 +15,7 @@ import ProfileSettings from '@/pages/ProfileSettings';
 import FriendSettings from '@/pages/FriendSettings';
 import UserHome from '@/pages/UserHome';
 import NiceModal from '@ebay/nice-modal-react';
+import PinboardView from '@/pages/PinboardView';
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="settings/profile" element={<ProfileSettings />} />
                 <Route path="settings/friends" element={<FriendSettings />} />
                 <Route path="users/:userId" element={<UserHome />} />
+                <Route path="pinboards/:pinboardId" element={<PinboardView />} />
               </Route>
 
               {/* fallback */}

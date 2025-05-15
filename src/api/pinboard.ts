@@ -36,7 +36,10 @@ export async function getPinboards(): Promise<IPinboardExtended[]> {
     .then((rsp: AxiosResponse<IPinboardBE[]>) => rsp.data?.map(formatPinboard2FE));
 }
 
-export async function getPinboardById(pinboardId: number): Promise<IPinboardExtended> {
+export async function getPinboardById(pinboardId?: number): Promise<IPinboardExtended | null> {
+  if (!pinboardId) {
+    return null;
+  }
   return await api
     .get(`/pinboards/${pinboardId}`)
     .then((rsp: AxiosResponse<IPinboardBE>) => formatPinboard2FE(rsp.data));
@@ -57,10 +60,13 @@ export async function createPinboard({ title, description, isPublic }: IPinboard
     .then((rsp) => rsp.data?.pinboardId);
 }
 
-// export async function updatePinboard({ id, name, description, isPublic }: IPinboard): Promise<any> {
-//   return await api.put(`/pinboards/${id}`, { name, description, isPublic });
-// }
-//
+export async function updatePinboard(
+  pinboardId: number,
+  { title, description, isPublic }: IPinboard,
+): Promise<void> {
+  return await api.put(`/pinboards/${pinboardId}`, { name: title, description, isPublic });
+}
+
 // export async function deletePinboard({ id }: Pick<IPinboard, 'id'>): Promise<any> {
 //   return await api.delete(`/pinboards/${id}`);
 // }

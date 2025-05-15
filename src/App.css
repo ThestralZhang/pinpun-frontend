@@ -1,3 +1,9 @@
 #root {
   height: 100vh;
 }
+
+.image-display {
+  .rs-image-wrapper {
+    height: 100%;
+  }
+}
