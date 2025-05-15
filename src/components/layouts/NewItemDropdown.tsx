@@ -4,10 +4,12 @@ import { Dropdown, Text } from 'rsuite';
 import { useModal } from '@ebay/nice-modal-react';
 import PinboardFormModal from '@/components/PinboardFormModal.tsx';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
+import StreamFormModal from '@/components/StreamFormModal.tsx';
 
 export default function NewItemDropdown({ expand }: { expand?: boolean }) {
   const pinboardModal = useModal(PinboardFormModal);
   const pictureModal = useModal(PictureFormModal);
+  const streamModal = useModal(StreamFormModal);
   return (
     <Dropdown
       placement="rightEnd"
@@ -22,7 +24,7 @@ export default function NewItemDropdown({ expand }: { expand?: boolean }) {
     >
       <Dropdown.Item onClick={() => pictureModal.show()}>New Pin</Dropdown.Item>
       <Dropdown.Item onClick={() => pinboardModal.show()}>New Pinboard</Dropdown.Item>
-      <Dropdown.Item>New Follow Stream</Dropdown.Item>
+      <Dropdown.Item onClick={() => streamModal.show()}>New Follow Stream</Dropdown.Item>
     </Dropdown>
   );
 }
