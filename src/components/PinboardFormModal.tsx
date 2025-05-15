@@ -27,7 +27,6 @@ export default NiceModal.create(function PinboardFormModal({
   const modal = useModal();
   const queryClient = useQueryClient();
   const [formLoading, setFormLoading] = useState(false);
-  // const toast = useToaster();
 
   const createMutation = useMutation({
     mutationFn: (newPinboard: IPinboard) => createPinboard(newPinboard),

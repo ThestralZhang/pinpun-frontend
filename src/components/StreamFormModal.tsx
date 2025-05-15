@@ -19,19 +19,11 @@ export default NiceModal.create(function StreamFormModal({
 }) {
   const modal = useModal();
   const queryClient = useQueryClient();
-  // const toast = useToaster();
 
   const createMutation = useMutation({
     mutationFn: (newStream: IStream) => createStream(newStream),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
-      // console.log('success', data);
-      // toast.push(
-      //   <Message showIcon type="success" closable>
-      //     A new pinboard has been created!
-      //   </Message>,
-      //   { placement: 'bottomEnd', duration: 2000 },
-      // );
     },
     onError: (errors) => {
       console.log('errors', errors);

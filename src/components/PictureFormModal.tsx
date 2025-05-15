@@ -6,17 +6,32 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { IPicture, IPictureFormInputs } from '@/types/picture.ts';
-import { createPicture } from '@/api/picture.ts';
+import { createPicture, getPictureById, updatePicture } from '@/api/picture.ts';
 import type { IPinboardExtended } from '@/types';
 import { getPinboardsByUser } from '@/api/pinboard.tsx';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import PictureSelector from '@/components/PictureSelector.tsx';
 import PictureTagPicker from '@/components/PictureTagPicker.tsx';
+import { useRef, useState } from 'react';
 
 // 10 MB max file size
 const MAX_SIZE = 10 * 1024 * 1024;
 // allowed MIME types
 const SUPPORTED_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/gif'];
+
+const defaultFormValues = {
+  title: '',
+  description: '',
+  picture: {
+    isUploaded: null,
+    imgFile: null,
+    imgUrl: null,
+    srcImgUrl: '',
+  },
+  pageUrl: '',
+  tags: [],
+  pinboardId: null,
+};
 
 const schema = yup.object({
   picture: yup.object({
@@ -64,19 +79,19 @@ const schema = yup.object({
 
 export default NiceModal.create(function PictureFormModal({
   mode = 'new',
+  pictureId,
+  pinboardId,
 }: {
   mode: 'new' | 'edit';
+  pictureId?: number;
+  pinboardId?: number;
 }) {
   const modal = useModal();
   const queryClient = useQueryClient();
+  const [formLoading, setFormLoading] = useState(false);
   const { user } = useAuthStore();
-  // const toast = useToaster();
 
-  const {
-    data: pinboards = [],
-    // isLoading: listLoading,
-    // isFetching,
-  } = useQuery<IPinboardExtended[]>({
+  const { data: pinboards = [] } = useQuery<IPinboardExtended[]>({
     queryKey: ['pinboards', { userId: user?.userId }],
     queryFn: () => getPinboardsByUser(user?.userId),
   });
@@ -85,13 +100,16 @@ export default NiceModal.create(function PictureFormModal({
     mutationFn: (newPicture: IPicture) => createPicture(newPicture),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pictures'] });
-      // console.log('success', data);
-      // toast.push(
-      //   <Message showIcon type="success" closable>
-      //     A new pinboard has been created!
-      //   </Message>,
-      //   { placement: 'bottomEnd', duration: 2000 },
-      // );
+    },
+    onError: (errors) => {
+      console.log('errors', errors);
+    },
+  });
+
+  const editMutation = useMutation({
+    mutationFn: (payload: IPicture) => updatePicture(pictureId as number, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pictures'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -106,35 +124,55 @@ export default NiceModal.create(function PictureFormModal({
     formState: { errors, isSubmitting },
   } = useForm<IPictureFormInputs>({
     resolver: yupResolver(schema as ObjectSchema<IPictureFormInputs>),
-    defaultValues: {
-      title: '',
-      description: '',
-      picture: {
-        isUploaded: null,
-        imgFile: null,
-        imgUrl: null,
-        srcImgUrl: '',
-      },
-      pageUrl: '',
-      tags: [],
-      pinboardId: null,
-    },
+    defaultValues: defaultFormValues,
     mode: 'onBlur',
     reValidateMode: 'onChange',
   });
 
+  const initEditRef = useRef(false);
+  const initEditForm = async () => {
+    if (mode !== 'edit' || initEditRef.current) {
+      return;
+    }
+    initEditRef.current = true;
+    setFormLoading(true);
+    const data = await getPictureById(pinboardId as number, pictureId as number);
+    reset({
+      title: data?.title || '',
+      description: data?.description || '',
+      pageUrl: data?.pageUrl || '',
+      tags: data?.tags || [],
+      pinboardId: data?.pinboardId || null,
+      picture: {
+        imgFile: null,
+        imgUrl: data?.imgUrl || null,
+        srcImgUrl: data.srcImgUrl || '',
+        isUploaded: true,
+      },
+    });
+    setFormLoading(false);
+  };
+
   const onClose = () => {
     modal.hide();
-    reset();
+    initEditRef.current = false;
   };
 
   const onSubmit = async (data: IPictureFormInputs) => {
     const { picture, ...other } = data;
-    await createMutation.mutateAsync({
-      ...other,
-      imgUrl: picture.isUploaded ? picture.imgUrl : null,
-      srcImgUrl: picture.isUploaded ? null : picture.srcImgUrl,
-    });
+    if (mode === 'new') {
+      await createMutation.mutateAsync({
+        ...other,
+        imgUrl: picture.isUploaded ? picture.imgUrl : null,
+        srcImgUrl: picture.isUploaded ? null : picture.srcImgUrl,
+      });
+    } else if (mode === 'edit') {
+      await editMutation.mutateAsync({
+        ...other,
+        imgUrl: picture.imgUrl,
+        srcImgUrl: picture.srcImgUrl,
+      });
+    }
     onClose();
   };
 
@@ -144,11 +182,20 @@ export default NiceModal.create(function PictureFormModal({
       open={modal.visible}
       closeButton={isSubmitting ? false : undefined}
       onClose={onClose}
+      onEnter={initEditForm}
+      onExited={() => {
+        reset(defaultFormValues);
+        setFormLoading(false);
+      }}
       size="lg"
     >
-      <Form layout="vertical" onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}>
+      <Form
+        layout="vertical"
+        disabled={formLoading}
+        onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}
+      >
         <Modal.Header>
-          <Modal.Title>{mode == 'new' ? 'New' : 'Edit'} Pin</Modal.Title>
+          <Modal.Title>{mode == 'new' ? 'New Pin' : 'Edit Picture'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <HStack divider={<Divider vertical />}>
@@ -201,6 +248,7 @@ export default NiceModal.create(function PictureFormModal({
                 <Controller
                   name="pinboardId"
                   control={control}
+                  disabled={mode === 'edit'}
                   render={({ field }) => (
                     <Form.Control
                       {...field}
@@ -226,6 +274,7 @@ export default NiceModal.create(function PictureFormModal({
                 <Form.ControlLabel>Page URL</Form.ControlLabel>
                 <Controller
                   name="pageUrl"
+                  disabled={mode === 'edit'}
                   control={control}
                   render={({ field }) => <Form.Control {...field} />}
                 />
@@ -244,6 +293,7 @@ export default NiceModal.create(function PictureFormModal({
                       value={field.value}
                       onChange={field.onChange}
                       trigger={trigger}
+                      isEdit={mode === 'edit'}
                     />
                   )}
                 />

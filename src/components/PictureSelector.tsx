@@ -26,58 +26,58 @@ export default function PictureSelector({
   onChange,
   trigger,
   // errors,
-  // isEdit,
+  isEdit,
 }: PictureSelectorProps) {
-  const previewUrl = value.isUploaded ? value.imgUrl : value.srcImgUrl;
+  const previewUrl = isEdit ? value.imgUrl : value.isUploaded ? value.imgUrl : value.srcImgUrl;
 
   const [isUploading, setIsUploading] = useState(false);
 
   return (
     <div className="picture-selector">
       <ImagePreview width={400} height={500} src={previewUrl} />
-      <Uploader
-        action="/api/upload"
-        headers={{ 'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN') }}
-        accept={SUPPORTED_FORMATS.join(',')}
-        fileListVisible={false}
-        multiple={false}
-        shouldUpload={(file: FileType) =>
-          !!file.blobFile &&
-          file.blobFile.size <= MAX_SIZE &&
-          SUPPORTED_FORMATS.includes(file.blobFile.type)
-        }
-        onChange={(fileList) => {
-          console.log('change upload file', fileList);
-          onChange({
-            ...value,
-            isUploaded: true,
-            imgFile: fileList[0]?.blobFile || null,
-            imgUrl: null,
-          });
-          setIsUploading(true);
-          trigger('picture.imgFile');
-        }}
-        onSuccess={(rsp, file) => {
-          console.log(' success upload file', rsp);
-          onChange({
-            ...value,
-            isUploaded: true,
-            imgFile: file.blobFile || null,
-            imgUrl: rsp?.imageUrl || null,
-          });
-          setIsUploading(false);
-        }}
-        onError={(rsp, file) => {
-          setIsUploading(false);
-          console.log('file error', rsp, file);
-        }}
-      >
-        <Button>Upload</Button>
-      </Uploader>
-      <Text>Or</Text>
+      {!isEdit && (
+        <Uploader
+          action="/api/upload"
+          headers={{ 'X-XSRF-TOKEN': Cookies.get('XSRF-TOKEN') }}
+          accept={SUPPORTED_FORMATS.join(',')}
+          fileListVisible={false}
+          multiple={false}
+          shouldUpload={(file: FileType) =>
+            !!file.blobFile &&
+            file.blobFile.size <= MAX_SIZE &&
+            SUPPORTED_FORMATS.includes(file.blobFile.type)
+          }
+          onChange={(fileList) => {
+            onChange({
+              ...value,
+              isUploaded: true,
+              imgFile: fileList[0]?.blobFile || null,
+              imgUrl: null,
+            });
+            setIsUploading(true);
+            trigger('picture.imgFile');
+          }}
+          onSuccess={(rsp, file) => {
+            onChange({
+              ...value,
+              isUploaded: true,
+              imgFile: file.blobFile || null,
+              imgUrl: rsp?.imageUrl || null,
+            });
+            setIsUploading(false);
+          }}
+          onError={(rsp, file) => {
+            setIsUploading(false);
+            console.log('file error', rsp, file);
+          }}
+        >
+          <Button>Upload</Button>
+        </Uploader>
+      )}
+      {!isEdit && <Text>Or</Text>}
       <Input
-        placeholder="Paste source image URL here"
-        disabled={isUploading}
+        placeholder={isEdit ? '--' : 'Paste source image URL here'}
+        disabled={isUploading || isEdit}
         value={value.srcImgUrl || ''}
         onChange={(val) => {
           onChange({ ...value, srcImgUrl: val });

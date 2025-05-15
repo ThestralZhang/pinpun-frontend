@@ -2,6 +2,12 @@
   height: 100vh;
 }
 
+#main-container {
+  height: 100vh;
+  overflow: auto;
+  padding: 0 15px 0 15px;
+}
+
 .image-display {
   .rs-image-wrapper {
     height: 100%;

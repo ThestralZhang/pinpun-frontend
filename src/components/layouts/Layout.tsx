@@ -39,7 +39,7 @@ export default function Layout() {
         </Stack>
       </Sidebar>
 
-      <Container>
+      <Container id="main-container">
         <Content>
           <UserProfile />
           <Outlet />

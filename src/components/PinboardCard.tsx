@@ -8,18 +8,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import { HiMiniEye } from 'react-icons/hi2';
 import StackItem from 'rsuite/StackItem';
+import { followPinboard } from '@/api/pinboard.tsx';
+import { useModal } from '@ebay/nice-modal-react';
+import PinboardFormModal from '@/components/PinboardFormModal.tsx';
 
 export interface PinboardCardProps extends IPinboardExtended {
+  type: 'pinboard';
   streams?: string[];
-  onFollow?: (pinboardId: number, streamName: string) => void;
-  onEdit?: (pinboardId: number) => void;
 }
 
 function PinboardCard(props: PinboardCardProps) {
-  const coverNum = props.coverUrls.length;
+  const coverNum = props.coverUrls?.length;
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const pinboardModal = useModal(PinboardFormModal);
 
   const renderStreamToggle = () => {
     return (
@@ -84,7 +87,7 @@ function PinboardCard(props: PinboardCardProps) {
                 placement="bottomEnd"
                 onSelect={(streamName: string, e) => {
                   e.stopPropagation();
-                  props.onFollow?.(props.id, streamName);
+                  followPinboard(props.id, streamName);
                 }}
               >
                 {props.streams?.map((stream) => (
@@ -104,7 +107,7 @@ function PinboardCard(props: PinboardCardProps) {
                 title="Edit"
                 onClick={(e) => {
                   e.stopPropagation();
-                  props.onEdit?.(props.id);
+                  pinboardModal.show({ mode: 'edit', pinboardId: props.id });
                 }}
               />
             )}

@@ -72,14 +72,29 @@ export async function getPinboardsByUser(userId?: number | null): Promise<IPinbo
 export async function createPinboard({ title, description, isPublic }: IPinboard): Promise<number> {
   return await api
     .post(`/pinboards`, { name: title, description, isPublic })
-    .then((rsp) => rsp.data?.pinboardId);
+    .then((rsp) => {
+      pushSuccessMessage('Successfully created pinboard!');
+      return rsp.data?.pinboardId;
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to create pinboard');
+      throw err;
+    });
 }
 
 export async function updatePinboard(
   pinboardId: number,
   { title, description, isPublic }: IPinboard,
 ): Promise<void> {
-  return await api.put(`/pinboards/${pinboardId}`, { name: title, description, isPublic });
+  return await api
+    .put(`/pinboards/${pinboardId}`, { name: title, description, isPublic })
+    .then(() => {
+      pushSuccessMessage('Successfully updated pinboard!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to update pinboard');
+      throw err;
+    });
 }
 
 export async function followPinboard(pinboardId: number, streamName: string): Promise<void> {
@@ -95,6 +110,6 @@ export async function followPinboard(pinboardId: number, streamName: string): Pr
           : // @ts-expect-error unknown type
             err.response?.data.message,
       );
-      Promise.reject();
+      Promise.reject(err);
     });
 }

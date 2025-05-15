@@ -1,6 +1,7 @@
 import { api } from '@/api/client.tsx';
-import type { AxiosResponse } from 'axios';
+import type { AxiosError, AxiosResponse } from 'axios';
 import type { IPicture, IPictureExtended, IPicturesPaged } from '@/types/picture.ts';
+import { pushErrorMessage, pushSuccessMessage } from '@/utils';
 
 interface IPictureBE {
   userId: number;
@@ -67,7 +68,7 @@ interface IPageSortParams {
 
 // for search and explore
 export async function getPictures(params: IPageSortParams): Promise<IPicturesPaged> {
-  return await api.get('/pinboards', { params }).then((rsp: AxiosResponse<IPicturesPagedBE>) => ({
+  return await api.get('/pictures', { params }).then((rsp: AxiosResponse<IPicturesPagedBE>) => ({
     data: rsp.data?.pictures.map(formatPicture2FE),
     totalPages: rsp.data?.totalPageCount,
     totalCount: rsp.data?.totalPictureCount,
@@ -75,9 +76,9 @@ export async function getPictures(params: IPageSortParams): Promise<IPicturesPag
 }
 
 // get single picture by id in a given pinboard
-export async function getPictureId(
-  pictureId: number,
+export async function getPictureById(
   pinboardId: number,
+  pictureId: number,
 ): Promise<IPictureExtended> {
   return await api
     .get(`/pinboards/${pinboardId}/pictures/${pictureId}`)
@@ -115,16 +116,55 @@ export async function createPicture(data: IPicture): Promise<number> {
       description: data.description || null,
       tags: data.tags || [],
     })
-    .then((rsp) => rsp.data?.pictureId);
+    .then((rsp) => {
+      pushSuccessMessage('Successfully created picture!');
+      return rsp.data?.pictureId;
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to create picture');
+      throw err;
+    });
 }
 
-// export async function updatePinboard({ id, name, description, isPublic }: IPinboard): Promise<any> {
-//   return await api.put(`/pinboards/${id}`, { name, description, isPublic });
-// }
-//
+export async function updatePicture(
+  pictureId: number,
+  { title, description, tags }: IPicture,
+): Promise<void> {
+  return await api
+    .put(`/pictures/${pictureId}`, { title, description, tags })
+    .then(() => {
+      pushSuccessMessage('Successfully updated picture!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to update picture');
+      throw err;
+    });
+}
+
 // export async function deletePinboard({ id }: Pick<IPinboard, 'id'>): Promise<any> {
 //   return await api.delete(`/pinboards/${id}`);
 // }
+
+export async function pinPicture(pictureId: number, pinboardId: number): Promise<void> {
+  await api
+    .post(`/pinboards/${pinboardId}/pictures/${pictureId}/repin`)
+    .then(() => {
+      pushSuccessMessage('Successfully repin!');
+    })
+    .catch((e) => {
+      pushErrorMessage(
+        e.status === 400
+          ? 'Already repinned in this pinboard.'
+          : // @ts-expect-error unknown type
+            err.response?.data.message,
+      );
+      Promise.reject(e);
+    });
+}
+
+export async function toggleLikePicture(pictureId: number): Promise<void> {
+  await api.post(`/pictures/${pictureId}/like`);
+}
 
 export async function searchTag(word: string): Promise<string[]> {
   return await api.get('/tags', { params: { search: word } }).then((rsp) => rsp.data);

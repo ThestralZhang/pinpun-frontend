@@ -10,19 +10,20 @@ interface PictureTagPickerProps {
   value: string[];
   onChange: (value: string[]) => void;
   trigger: UseFormTrigger<IPictureFormInputs>;
+  isEdit: boolean;
 }
 
 export default function PictureTagPicker({ value, onChange, trigger }: PictureTagPickerProps) {
   const [word, setWord] = useState('');
   const [cacheData, setCacheData] = useState<{ label: string; value: string }[]>([]);
-  const {
-    data: tags = [],
-    // // isLoading: listLoading,
-    isFetching,
-  } = useQuery<{ label: string; value: string }[]>({
+  const { data: tags = [], isFetching } = useQuery({
     queryKey: ['tags', { word }],
-    queryFn: () => searchTag(word).then((data) => data.map((t) => ({ label: t, value: t }))),
+    queryFn: () => searchTag(word),
+    select: (data) => {
+      return Array.from(new Set([...data, ...value])).map((t) => ({ label: t, value: t }));
+    },
     enabled: !!word && word.length > 0,
+    initialData: [],
   });
 
   return (
@@ -35,7 +36,6 @@ export default function PictureTagPicker({ value, onChange, trigger }: PictureTa
       onSearch={(w) => setWord(w)}
       onSelect={(_v, item) => {
         trigger('tags');
-        console.log(cacheData);
         setCacheData([...cacheData, { label: item.label as string, value: item.value }]);
       }}
       onClean={() => {
