@@ -68,6 +68,7 @@ export default NiceModal.create(function PinboardFormModal({
       open={modal.visible}
       closeButton={isSubmitting ? false : undefined}
       onClose={onClose}
+      size="xs"
     >
       <Form layout="vertical" onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}>
         <Modal.Header>
