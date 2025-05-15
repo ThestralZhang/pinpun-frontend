@@ -23,7 +23,9 @@ export default function NewItemDropdown({ expand }: { expand?: boolean }) {
       noCaret
     >
       <Dropdown.Item onClick={() => pictureModal.show()}>New Pin</Dropdown.Item>
-      <Dropdown.Item onClick={() => pinboardModal.show()}>New Pinboard</Dropdown.Item>
+      <Dropdown.Item onClick={() => pinboardModal.show({ mode: 'new' })}>
+        New Pinboard
+      </Dropdown.Item>
       <Dropdown.Item onClick={() => streamModal.show()}>New Follow Stream</Dropdown.Item>
     </Dropdown>
   );

@@ -13,3 +13,9 @@ export interface IPinboardExtended extends IPinboard {
   createdAt: Date | null;
   updatedAt: Date | null;
 }
+
+export interface IPinboardsPaged {
+  data: IPinboardExtended[];
+  totalPages: number;
+  totalCount: number;
+}

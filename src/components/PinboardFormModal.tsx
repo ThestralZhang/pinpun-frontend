@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPinboard, getPinboardById, updatePinboard } from '@/api/pinboard.ts';
+import { createPinboard, getPinboardById, updatePinboard } from '@/api/pinboard.tsx';
 import type { IPinboard } from '@/types';
 import { useRef, useState } from 'react';
 
@@ -98,7 +98,7 @@ export default NiceModal.create(function PinboardFormModal({
       onClose={onClose}
       onEnter={initEditForm}
       onExited={() => {
-        reset();
+        reset({ title: '', description: '', isPublic: true });
         setFormLoading(false);
       }}
       size="xs"

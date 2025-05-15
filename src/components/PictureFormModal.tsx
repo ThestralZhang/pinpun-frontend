@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { IPicture, IPictureFormInputs } from '@/types/picture.ts';
 import { createPicture } from '@/api/picture.ts';
 import type { IPinboardExtended } from '@/types';
-import { getPinboardsByUser } from '@/api/pinboard.ts';
+import { getPinboardsByUser } from '@/api/pinboard.tsx';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import PictureSelector from '@/components/PictureSelector.tsx';
 import PictureTagPicker from '@/components/PictureTagPicker.tsx';

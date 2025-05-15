@@ -1,10 +1,13 @@
 import { Fragment, memo, useState } from 'react';
-import { Card, Text, HStack, ButtonGroup, IconButton } from 'rsuite';
+import { Card, Text, HStack, ButtonGroup, IconButton, Dropdown } from 'rsuite';
 import type { IPinboardExtended } from '@/types';
 import UserAvatar from '@/components/UserAvatar.tsx';
 import ImageDisplay from '@/components/ImageDisplay.tsx';
 import { MdEdit } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore.ts';
+import { HiMiniEye } from 'react-icons/hi2';
+import StackItem from 'rsuite/StackItem';
 
 export interface PinboardCardProps extends IPinboardExtended {
   streams?: string[];
@@ -16,6 +19,22 @@ function PinboardCard(props: PinboardCardProps) {
   const coverNum = props.coverUrls.length;
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const renderStreamToggle = () => {
+    return (
+      <IconButton
+        icon={<HiMiniEye className="text-blue-600" />}
+        size="md"
+        circle
+        className="shadow-lg bg-white"
+        title="Follow"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      />
+    );
+  };
 
   return (
     <Card
@@ -46,18 +65,37 @@ function PinboardCard(props: PinboardCardProps) {
       </div>
       <HStack justifyContent="space-between" className="px-3 py-2">
         <Text size="lg">{props.title}</Text>
-        <UserAvatar
-          userId={props.userId}
-          username={props.username}
-          avatarUrl={props.userAvatarUrl}
-          size="sm"
-        />
+        <StackItem shrink={0} grow={0}>
+          <UserAvatar
+            userId={props.userId}
+            username={props.username}
+            avatarUrl={props.userAvatarUrl}
+            size="sm"
+          />
+        </StackItem>
       </HStack>
       {hovered && (
         <div className="card-actions-wrapper w-full h-[50px] absolute">
           <ButtonGroup className="float-right mt-2 mr-2">
-            {/*{props.streams && <Dropdown></Dropdown>}*/}
-            {props.onEdit && (
+            {props.userId !== user?.userId && (
+              <Dropdown
+                renderToggle={renderStreamToggle}
+                trigger="hover"
+                placement="bottomEnd"
+                onSelect={(streamName: string, e) => {
+                  e.stopPropagation();
+                  props.onFollow?.(props.id, streamName);
+                }}
+              >
+                {props.streams?.map((stream) => (
+                  <Dropdown.Item key={stream} eventKey={stream}>
+                    {stream}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown>
+            )}
+
+            {props.userId === user?.userId && (
               <IconButton
                 icon={<MdEdit className="text-blue-600" />}
                 size="md"

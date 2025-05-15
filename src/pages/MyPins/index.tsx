@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { IPinboardExtended } from '@/types';
-import { getPinboardsByUser } from '@/api/pinboard.ts';
+import { getPinboardsByUser } from '@/api/pinboard.tsx';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import CardWall from '@/components/CardWall.tsx';
 import { useCallback } from 'react';
