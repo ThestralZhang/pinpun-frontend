@@ -9,6 +9,7 @@ import { pinPicture, toggleLikePicture } from '@/api/picture.ts';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import { GoHeart, GoHeartFill } from 'react-icons/go';
+import PictureDetailModal from '@/components/PictureDetailModal';
 
 export interface PictureCardProps extends IPictureExtended {
   type: 'picture';
@@ -16,14 +17,15 @@ export interface PictureCardProps extends IPictureExtended {
 }
 
 function PictureCard(props: PictureCardProps) {
-  const pictureModal = useModal(PictureFormModal);
+  const pictureFormModal = useModal(PictureFormModal);
+  const pictureDetailModal = useModal(PictureDetailModal);
   const [hovered, setHovered] = useState(false);
   const { user } = useAuthStore();
 
   const renderPinboardsToggle = () => {
     return (
       <IconButton
-        icon={<FaMapPin className="text-blue-600 scale-125" />}
+        icon={<FaMapPin className="text-blue-500 scale-125" />}
         size="md"
         circle
         className="shadow-lg bg-white ml-2"
@@ -44,7 +46,12 @@ function PictureCard(props: PictureCardProps) {
       shaded="hover"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      // onClick={() => navigate(`/pinboards/${props.id}`)}
+      onClick={() =>
+        pictureDetailModal.show({
+          pinboardId: props.pinboardId as number,
+          pictureId: props.id,
+        })
+      }
     >
       <ImageDisplay className="w-full" src={props.imgUrl as string} />
       {hovered && (
@@ -77,14 +84,14 @@ function PictureCard(props: PictureCardProps) {
             </Whisper>
             {props.originalUserId === user?.userId && !props.isRepin && (
               <IconButton
-                icon={<MdEdit className="text-blue-600 scale-125" />}
+                icon={<MdEdit className="text-blue-500 scale-125" />}
                 size="md"
                 circle
                 className="shadow-lg bg-white ml-2! inline-block"
                 title="Edit"
                 onClick={(e) => {
                   e.stopPropagation();
-                  pictureModal.show({
+                  pictureFormModal.show({
                     mode: 'edit',
                     pictureId: props.id,
                     pinboardId: props.pinboardId as number,

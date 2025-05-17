@@ -1,7 +1,6 @@
 import { Avatar, type AvatarProps } from 'rsuite';
 import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
-import { useState } from 'react';
 
 interface UserAvatarProps extends AvatarProps {
   userId?: number | null;
@@ -19,7 +18,6 @@ export default function UserAvatar({
   ...rest
 }: UserAvatarProps) {
   const navigate = useNavigate();
-  const [isHovered, setHovered] = useState(false);
 
   const onClick = (e: Event) => {
     e.stopPropagation();
@@ -33,15 +31,11 @@ export default function UserAvatar({
   return (
     <Avatar
       circle
-      color={isHovered ? 'blue' : undefined}
-      bordered={isHovered}
       src={avatarUrl || undefined}
       alt={username?.charAt(0).toUpperCase()}
       title={username}
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={classnames(clickable && 'cursor-pointer', className)}
+      className={classnames(clickable && 'cursor-pointer hover:shadow-lg', className)}
       {...rest}
     />
   );

@@ -13,3 +13,16 @@
     height: 100%;
   }
 }
+
+.picture-detail-modal {
+  .rs-modal-content {
+    padding: 0;
+    height: 900px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+}
+body > .rs-modal-wrapper ~ .rs-modal-wrapper {
+  background: rgba(0, 0, 0, 0.6) !important;
+}

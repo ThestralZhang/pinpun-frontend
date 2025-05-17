@@ -9,7 +9,7 @@ export default function Explore() {
 
   const { data: pictures } = useQuery({
     queryKey: ['pictures', { page: 1, size: 30 }],
-    queryFn: () => getPictures({ page: 1, size: 15, sort: 'time,desc' }),
+    queryFn: () => getPictures({ page: 1, size: 30, sort: 'time,desc' }),
     select: (data) => data.data.map((p) => ({ type: 'picture' as const, ...p })),
   });
   const { data: pinboards } = useQuery({

@@ -31,8 +31,8 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NiceModal.Provider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <NiceModal.Provider>
           <Routes>
             <Route element={<Layout />}>
               {/* public */}
@@ -55,8 +55,8 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
-        </BrowserRouter>
-      </NiceModal.Provider>
+        </NiceModal.Provider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

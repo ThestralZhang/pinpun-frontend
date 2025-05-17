@@ -1,6 +1,11 @@
 import { api } from '@/api/client.tsx';
 import type { AxiosError, AxiosResponse } from 'axios';
-import type { IPicture, IPictureExtended, IPicturesPaged } from '@/types/picture.ts';
+import type {
+  ICommentsPaged,
+  IPicture,
+  IPictureExtended,
+  IPicturesPaged,
+} from '@/types/picture.ts';
 import { pushErrorMessage, pushSuccessMessage } from '@/utils';
 
 interface IPictureBE {
@@ -141,9 +146,29 @@ export async function updatePicture(
     });
 }
 
-// export async function deletePinboard({ id }: Pick<IPinboard, 'id'>): Promise<any> {
-//   return await api.delete(`/pinboards/${id}`);
-// }
+export async function deleteRepinnedPicture(pinboardId: number, pictureId: number): Promise<void> {
+  return await api
+    .delete(`/pinboards/${pinboardId}/pictures/${pictureId}/repin`)
+    .then(() => {
+      pushSuccessMessage('Successfully removed pin from pinboard!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to remove pin from pinboard');
+      throw err;
+    });
+}
+
+export async function deletePinnedPicture(pictureId: number): Promise<void> {
+  return await api
+    .delete(`/pictures/${pictureId}`)
+    .then(() => {
+      pushSuccessMessage('Successfully deleted picture!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to delete picture');
+      throw err;
+    });
+}
 
 export async function pinPicture(pictureId: number, pinboardId: number): Promise<void> {
   await api
@@ -168,4 +193,74 @@ export async function toggleLikePicture(pictureId: number): Promise<void> {
 
 export async function searchTag(word: string): Promise<string[]> {
   return await api.get('/tags', { params: { search: word } }).then((rsp) => rsp.data);
+}
+
+interface ICommentBE {
+  userId: number;
+  userName: string;
+  userAvatarUrl: string | null;
+  commentId: number;
+  content: string;
+  createdAt: string;
+}
+
+interface ICommentsPagedBE {
+  comments: ICommentBE[];
+  totalPageCount: number;
+  totalCommentCount: number;
+}
+
+interface ICommentParams {
+  page: number;
+  size: number;
+  sort?: `createdAt,${'asc' | 'desc'}`;
+}
+
+export async function getCommentsOnPicture(
+  pinboardId: number,
+  pictureId: number,
+  params: ICommentParams,
+): Promise<ICommentsPaged> {
+  return await api
+    .get(`/pinboards/${pinboardId}/pictures/${pictureId}/comments`, { params })
+    .then((rsp: AxiosResponse<ICommentsPagedBE>) => ({
+      data: rsp.data?.comments.map(({ commentId, userName, createdAt, ...rest }) => ({
+        id: commentId,
+        username: userName,
+        createdAt: new Date(createdAt),
+        ...rest,
+      })),
+      totalPages: rsp.data?.totalPageCount,
+      totalCount: rsp.data?.totalCommentCount,
+    }));
+}
+
+export async function commentOnPicture(
+  pinboardId: number,
+  pictureId: number,
+  content: string,
+): Promise<number> {
+  return await api
+    .post(`/pinboards/${pinboardId}/pictures/${pictureId}/comments`, { content })
+    .then((rsp: AxiosResponse<ICommentBE>) => {
+      pushSuccessMessage('Successfully posted comment!');
+      return rsp.data?.commentId;
+    })
+    .catch((err: AxiosError) => {
+      // @ts-expect-error unknown type
+      pushErrorMessage(err.response?.data.message || 'Failed to comment');
+      throw err;
+    });
+}
+
+export async function deleteCommentOnPicture(commentId: number): Promise<void> {
+  return await api
+    .delete(`/comments/${commentId}`)
+    .then(() => {
+      pushSuccessMessage('Successfully deleted comment!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to delete comment');
+      throw err;
+    });
 }

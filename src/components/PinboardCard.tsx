@@ -27,7 +27,7 @@ function PinboardCard(props: PinboardCardProps) {
   const renderStreamToggle = () => {
     return (
       <IconButton
-        icon={<HiMiniEye className="text-blue-600" />}
+        icon={<HiMiniEye className="text-blue-500" />}
         size="md"
         circle
         className="shadow-lg bg-white"
@@ -100,7 +100,7 @@ function PinboardCard(props: PinboardCardProps) {
 
             {props.userId === user?.userId && (
               <IconButton
-                icon={<MdEdit className="text-blue-600" />}
+                icon={<MdEdit className="text-blue-500" />}
                 size="md"
                 circle
                 className="shadow-lg bg-white"

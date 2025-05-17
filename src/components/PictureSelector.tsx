@@ -34,7 +34,7 @@ export default function PictureSelector({
 
   return (
     <div className="picture-selector">
-      <ImagePreview width={400} height={500} src={previewUrl} />
+      <ImagePreview width={400} height={500} src={previewUrl || undefined} />
       {!isEdit && (
         <Uploader
           action="/api/upload"

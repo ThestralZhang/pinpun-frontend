@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, type CSSProperties } from 'react';
-import { Text } from 'rsuite';
+import { Placeholder, Text } from 'rsuite';
 import classnames from 'classnames';
 
 interface ImagePreviewProps {
-  src?: string | null;
+  src: string | null | undefined;
   width: CSSProperties['width'];
   height: CSSProperties['height'];
 }
@@ -14,6 +14,13 @@ export default function ImagePreview({ src, width, height }: ImagePreviewProps) 
 
   const [scale, setScale] = useState(1);
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(src === null);
+
+  useEffect(() => {
+    setIsLoading(src === null);
+    setIsError(false);
+  }, [src]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -50,7 +57,18 @@ export default function ImagePreview({ src, width, height }: ImagePreviewProps) 
       style={{ width, height }}
       onMouseLeave={reset}
     >
-      {src ? (
+      {src === undefined && (
+        <Text
+          align="center"
+          size="lg"
+          className="font-bold text-gray-400! absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        >
+          Image Preview
+        </Text>
+      )}
+      {src === null && isLoading && <Placeholder.Graph active className="w-full! h-full!" />}
+      {!!src && !isLoading && isError && <div>break</div>}
+      {!!src && !isLoading && !isError && (
         <img
           ref={imgRef}
           src={src}
@@ -60,15 +78,13 @@ export default function ImagePreview({ src, width, height }: ImagePreviewProps) 
             transformOrigin: `${origin.x}px ${origin.y}px`,
             transform: `scale(${scale})`,
           }}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            console.log('error');
+            setIsError(true);
+            setIsLoading(false);
+          }}
         />
-      ) : (
-        <Text
-          align="center"
-          size="lg"
-          className="font-bold text-gray-400! absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        >
-          Image Preview
-        </Text>
       )}
     </div>
   );

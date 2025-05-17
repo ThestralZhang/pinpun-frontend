@@ -39,3 +39,21 @@ export interface IPicturesPaged {
   totalPages: number;
   totalCount: number;
 }
+
+export interface IComment {
+  content: string;
+}
+
+export interface ICommentExtended extends IComment {
+  id: number;
+  userId: number;
+  username: string;
+  userAvatarUrl: string | null;
+  createdAt: Date;
+}
+
+export interface ICommentsPaged {
+  data: ICommentExtended[];
+  totalPages: number;
+  totalCount: number;
+}
