@@ -73,7 +73,7 @@ export async function createPinboard({ title, description, isPublic }: IPinboard
   return await api
     .post(`/pinboards`, { name: title, description, isPublic })
     .then((rsp) => {
-      pushSuccessMessage('Successfully created pinboard!');
+      pushSuccessMessage('Pinboard created successfully!');
       return rsp.data?.pinboardId;
     })
     .catch((err: AxiosError) => {
@@ -89,7 +89,7 @@ export async function updatePinboard(
   return await api
     .put(`/pinboards/${pinboardId}`, { name: title, description, isPublic })
     .then(() => {
-      pushSuccessMessage('Successfully updated pinboard!');
+      pushSuccessMessage('Pinboard updated successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage('Failed to update pinboard');
@@ -101,7 +101,7 @@ export async function followPinboard(pinboardId: number, streamName: string): Pr
   await api
     .post(`/streams/${streamName}/pinboards/${pinboardId}`)
     .then(() => {
-      pushSuccessMessage('Successful follow up!');
+      pushSuccessMessage('Pinboard followed successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage(

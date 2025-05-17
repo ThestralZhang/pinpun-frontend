@@ -78,6 +78,7 @@ export default function CommentArea({
                         username={c.username}
                         avatarUrl={c.userAvatarUrl}
                         size="md"
+                        placement="rightStart"
                       />
                     </Stack.Item>
                     <VStack className="grow">

@@ -61,6 +61,7 @@ export default function BasicInfo({
           avatarUrl={pictureData.userAvatarUrl}
           size="xs"
           className="shrink-0"
+          placement="leftStart"
         />
       </HStack>
       <HStack alignItems="center" justifyContent="flex-end">
@@ -92,6 +93,7 @@ export default function BasicInfo({
           avatarUrl={pictureData.originalUserAvatarUrl}
           size="xs"
           className="shrink-0"
+          placement="leftStart"
         />
       </HStack>
 

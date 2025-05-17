@@ -23,6 +23,20 @@
     position: relative;
   }
 }
+
 body > .rs-modal-wrapper ~ .rs-modal-wrapper {
   background: rgba(0, 0, 0, 0.6) !important;
+}
+
+.account-avatar-popover {
+  .rs-popover-arrow {
+    display: none;
+  }
+}
+
+.user-avatar-dropdown {
+  .rs-dropdown-menu {
+    padding: 0;
+    overflow: hidden;
+  }
 }

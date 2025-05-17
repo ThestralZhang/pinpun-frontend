@@ -74,6 +74,7 @@ function PinboardCard(props: PinboardCardProps) {
             username={props.username}
             avatarUrl={props.userAvatarUrl}
             size="sm"
+            placement="leftStart"
           />
         </StackItem>
       </HStack>

@@ -1,42 +1,74 @@
-import { Avatar, type AvatarProps } from 'rsuite';
+import { Avatar, type AvatarProps, Dropdown, type DropdownProps } from 'rsuite';
 import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
+import { FaUserPlus } from 'react-icons/fa6';
+import { sendFriendRequest } from '@/api/friend.ts';
+import { useAuthStore } from '@/stores/useAuthStore.ts';
 
 interface UserAvatarProps extends AvatarProps {
   userId?: number | null;
   username?: string | null;
   avatarUrl?: string | null;
-  clickable?: boolean;
+  placement?: DropdownProps['placement'];
+  hoverMenu?: boolean;
 }
 
 export default function UserAvatar({
   userId,
   avatarUrl,
   username,
-  clickable = true,
   className,
+  placement,
+  hoverMenu = true,
   ...rest
 }: UserAvatarProps) {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
-  const onClick = (e: Event) => {
+  const onClickAvatar = (e: Event) => {
     e.stopPropagation();
-    if (!clickable || userId === null || userId === undefined) {
+    if (userId === null || userId === undefined) {
       return;
     } else {
       navigate(`/users/${userId}`);
     }
   };
 
+  const renderAvatar = () => {
+    return (
+      <Avatar
+        circle
+        src={avatarUrl || undefined}
+        alt={username?.charAt(0).toUpperCase()}
+        title={username}
+        onClick={onClickAvatar}
+        className={classnames('cursor-pointer hover:shadow-lg', className)}
+        {...rest}
+      />
+    );
+  };
+
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  const onAddFriend = (e: any) => {
+    console.log('onAddFriend', userId, user);
+    e.stopPropagation?.();
+    if (!userId || userId === user?.userId || !hoverMenu) {
+      return;
+    }
+    sendFriendRequest(userId as number);
+  };
+
   return (
-    <Avatar
-      circle
-      src={avatarUrl || undefined}
-      alt={username?.charAt(0).toUpperCase()}
-      title={username}
-      onClick={onClick}
-      className={classnames(clickable && 'cursor-pointer hover:shadow-lg', className)}
-      {...rest}
-    />
+    <Dropdown
+      renderToggle={renderAvatar}
+      trigger="hover"
+      placement={placement}
+      className="user-avatar-dropdown"
+      disabled={userId === user?.userId || !hoverMenu}
+    >
+      <Dropdown.Item title="add friend" onClick={onAddFriend}>
+        <FaUserPlus className="scale-125 text-blue-400" />
+      </Dropdown.Item>
+    </Dropdown>
   );
 }

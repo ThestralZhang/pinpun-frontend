@@ -122,7 +122,7 @@ export async function createPicture(data: IPicture): Promise<number> {
       tags: data.tags || [],
     })
     .then((rsp) => {
-      pushSuccessMessage('Successfully created picture!');
+      pushSuccessMessage('Picture created successfully!');
       return rsp.data?.pictureId;
     })
     .catch((err: AxiosError) => {
@@ -138,7 +138,7 @@ export async function updatePicture(
   return await api
     .put(`/pictures/${pictureId}`, { title, description, tags })
     .then(() => {
-      pushSuccessMessage('Successfully updated picture!');
+      pushSuccessMessage('Picture updated successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage('Failed to update picture');
@@ -150,7 +150,7 @@ export async function deleteRepinnedPicture(pinboardId: number, pictureId: numbe
   return await api
     .delete(`/pinboards/${pinboardId}/pictures/${pictureId}/repin`)
     .then(() => {
-      pushSuccessMessage('Successfully removed pin from pinboard!');
+      pushSuccessMessage('Pin removed from pinboard successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage('Failed to remove pin from pinboard');
@@ -162,7 +162,7 @@ export async function deletePinnedPicture(pictureId: number): Promise<void> {
   return await api
     .delete(`/pictures/${pictureId}`)
     .then(() => {
-      pushSuccessMessage('Successfully deleted picture!');
+      pushSuccessMessage('Picture deleted successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage('Failed to delete picture');
@@ -174,7 +174,7 @@ export async function pinPicture(pictureId: number, pinboardId: number): Promise
   await api
     .post(`/pinboards/${pinboardId}/pictures/${pictureId}/repin`)
     .then(() => {
-      pushSuccessMessage('Successfully repin!');
+      pushSuccessMessage('Repin successfully!');
     })
     .catch((e) => {
       pushErrorMessage(
@@ -243,7 +243,7 @@ export async function commentOnPicture(
   return await api
     .post(`/pinboards/${pinboardId}/pictures/${pictureId}/comments`, { content })
     .then((rsp: AxiosResponse<ICommentBE>) => {
-      pushSuccessMessage('Successfully posted comment!');
+      pushSuccessMessage('Comment posted successfully!');
       return rsp.data?.commentId;
     })
     .catch((err: AxiosError) => {
@@ -257,7 +257,7 @@ export async function deleteCommentOnPicture(commentId: number): Promise<void> {
   return await api
     .delete(`/comments/${commentId}`)
     .then(() => {
-      pushSuccessMessage('Successfully deleted comment!');
+      pushSuccessMessage('Comment deleted successfully!');
     })
     .catch((err: AxiosError) => {
       pushErrorMessage('Failed to delete comment');
