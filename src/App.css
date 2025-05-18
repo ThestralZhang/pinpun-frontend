@@ -40,3 +40,10 @@ body > .rs-modal-wrapper ~ .rs-modal-wrapper {
     overflow: hidden;
   }
 }
+
+.force-large-avatar {
+  img {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

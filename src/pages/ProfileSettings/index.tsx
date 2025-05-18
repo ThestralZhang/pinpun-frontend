@@ -1,5 +1,9 @@
-import { Heading } from 'rsuite';
+import UserInfoForm from '@/components/UserInfoForm.tsx';
 
 export default function ProfileSettings() {
-  return <Heading>This is Profile Settings</Heading>;
+  return (
+    <div className="mt-10 w-[700px]">
+      <UserInfoForm mode="edit" />
+    </div>
+  );
 }

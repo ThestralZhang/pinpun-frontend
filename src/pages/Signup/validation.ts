@@ -6,8 +6,16 @@ export interface SignUpForm {
   password: string;
   passwordConfirm: string;
   about?: string;
-  avatarUrl?: string;
+  avatar: {
+    file: File | null;
+    url: string | undefined;
+  };
 }
+
+// 5 MB max file size
+const MAX_SIZE = 5 * 1024 * 1024;
+// allowed MIME types
+const SUPPORTED_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/gif'];
 
 export const signUpSchema = yup.object({
   username: yup
@@ -31,5 +39,16 @@ export const signUpSchema = yup.object({
 
   about: yup.string().trim().max(200, 'About must be within 200 characters').optional(),
 
-  avatarUrl: yup.string().optional(),
+  avatar: yup.object({
+    file: yup
+      .mixed<File>()
+      .nullable()
+      .test('fileSize', 'File must be within 5MB', (file?: File | null) => {
+        return !file || file.size <= MAX_SIZE;
+      })
+      .test('fileType', 'Unsupported file format', (file?: File | null) => {
+        return !file || SUPPORTED_FORMATS.includes(file.type);
+      }),
+    url: yup.string().notRequired(),
+  }),
 });

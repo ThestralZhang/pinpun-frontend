@@ -83,7 +83,7 @@ export default function UserHome() {
           avatarUrl={userData.avatarUrl}
           hoverMenu={false}
           noRedirect
-          className="w-[120px]! h-[120px]! text-[60px]!"
+          className="w-[120px]! h-[120px]! text-[60px]! force-large-avatar"
         />
         <VStack spacing={5} className="grow ml-5">
           <div className="text-[36px] font-bold">{userData.name}</div>
