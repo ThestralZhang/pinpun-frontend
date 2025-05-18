@@ -116,7 +116,7 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pinboards.map((board) => (
             <div key={`board-${board.id}`}>
-              <PinboardCard streams={streams} type="pinboard" className="mb-4" {...board} />
+              <PinboardCard streams={streams} className="mb-4" {...board} />
             </div>
           ))}
         </Masonry>

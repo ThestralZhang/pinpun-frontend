@@ -93,7 +93,7 @@ export async function getPictureById(
 
 // get pictures pinned/repinned by a given user
 export async function getPicturesByUser(
-  params: IPageSortParams,
+  params: { page: number; size: number },
   userId?: number | null,
 ): Promise<IPicturesPaged> {
   if (userId === null || userId === undefined) {

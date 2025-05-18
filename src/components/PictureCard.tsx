@@ -13,7 +13,6 @@ import PictureDetailModal from '@/components/PictureDetailModal';
 import classnames from 'classnames';
 
 export interface PictureCardProps extends IPictureExtended {
-  type: 'picture';
   pinboards?: { id: number; name: string }[];
   className?: string;
 }

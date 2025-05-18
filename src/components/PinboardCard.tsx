@@ -14,7 +14,6 @@ import PinboardFormModal from '@/components/PinboardFormModal.tsx';
 import classnames from 'classnames';
 
 export interface PinboardCardProps extends IPinboardExtended {
-  type: 'pinboard';
   streams?: string[];
   className?: string;
 }

@@ -120,7 +120,7 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pictures.map((pic) => (
             <div key={`pic-${pic.pinboardId}-${pic.id}`}>
-              <PictureCard pinboards={pinboards} type="picture" className="mb-4" {...pic} />
+              <PictureCard pinboards={pinboards} className="mb-4" {...pic} />
             </div>
           ))}
         </Masonry>
