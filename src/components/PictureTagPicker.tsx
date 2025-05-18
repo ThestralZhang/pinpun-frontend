@@ -29,6 +29,7 @@ export default function PictureTagPicker({ value, onChange, trigger }: PictureTa
   return (
     <TagPicker
       creatable
+      className="w-full"
       data={tags}
       cacheData={cacheData}
       value={value}

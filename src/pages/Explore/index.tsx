@@ -91,12 +91,13 @@ export default function Explore() {
         )}
         {viewBy === 'pin' && (
           <IconButton
+            className="shrink-0 grow-0"
             onClick={onToggleOrder}
             icon={
               order === 'asc' ? (
-                <RiSortAsc className="scale-180 text-blue-400" />
+                <RiSortAsc className="scale-160 text-blue-400" />
               ) : (
-                <RiSortDesc className="scale-180 text-blue-400" />
+                <RiSortDesc className="scale-160 text-blue-400" />
               )
             }
           />

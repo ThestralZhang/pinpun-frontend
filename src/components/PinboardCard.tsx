@@ -67,7 +67,9 @@ function PinboardCard(props: PinboardCardProps) {
         )}
       </div>
       <HStack justifyContent="space-between" className="px-3 py-2">
-        <Text size="lg">{props.title}</Text>
+        <Text size="lg" className="break-all">
+          {props.title}
+        </Text>
         <StackItem shrink={0} grow={0}>
           <UserAvatar
             userId={props.userId}
@@ -90,9 +92,15 @@ function PinboardCard(props: PinboardCardProps) {
                   e.stopPropagation();
                   followPinboard(props.id, streamName);
                 }}
+                menuStyle={{
+                  maxHeight: 170,
+                  maxWidth: 200,
+                  overflow: 'hidden auto',
+                  transform: 'translateY(1px)',
+                }}
               >
                 {props.streams?.map((stream) => (
-                  <Dropdown.Item key={stream} eventKey={stream}>
+                  <Dropdown.Item key={stream} eventKey={stream} className="block! truncate!">
                     {stream}
                   </Dropdown.Item>
                 ))}

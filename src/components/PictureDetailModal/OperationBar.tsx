@@ -7,7 +7,8 @@ import {
   toggleLikePicture,
 } from '@/api/picture.ts';
 import { MdEdit } from 'react-icons/md';
-import { FaMapPin, FaTrashCan } from 'react-icons/fa6';
+import { BsPinAngleFill } from 'react-icons/bs';
+import { FaTrashCan } from 'react-icons/fa6';
 import type { IPictureExtended } from '@/types/picture.ts';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
@@ -30,7 +31,7 @@ export default function OperationBar({
   const renderPinboardsToggle = () => {
     return (
       <IconButton
-        icon={<FaMapPin className="text-blue-500 scale-125" />}
+        icon={<BsPinAngleFill className="text-blue-500 scale-125" />}
         size="md"
         circle
         className="bg-white! ml-2 hover:shadow-md"
@@ -83,9 +84,15 @@ export default function OperationBar({
           pinPicture(pictureData.id, pinboardId);
         }}
         className="ml-2"
+        menuStyle={{
+          maxHeight: 300,
+          maxWidth: 200,
+          overflow: 'hidden auto',
+          transform: 'translateY(1px)',
+        }}
       >
         {pinboards?.map((b) => (
-          <Dropdown.Item key={b.id} eventKey={b.id}>
+          <Dropdown.Item key={b.id} eventKey={b.id} className="block! truncate!">
             {b.name}
           </Dropdown.Item>
         ))}

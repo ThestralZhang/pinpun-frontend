@@ -103,10 +103,11 @@ export default function CommentArea({
                   {hoveringId === c.id && c.userId === user?.userId && (
                     <IconButton
                       icon={<Close />}
-                      className="absolute! top-0 right-2 hover:shadow-lg"
+                      className="absolute! top-0 right-2 hover:shadow-lg bg-white!"
                       circle
                       title="delete comment"
                       size="xs"
+                      appearance="ghost"
                       onClick={() => {
                         deletePromptModal.show({
                           content:

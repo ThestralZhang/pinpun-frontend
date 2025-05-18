@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPinboard, getPinboardById, updatePinboard } from '@/api/pinboard.tsx';
 import type { IPinboard } from '@/types';
 import { useRef, useState } from 'react';
+import TextAreaControl from '@/components/TextAreaControl.tsx';
 
 interface IPinboardFormModalProps {
   mode: 'new' | 'edit';
@@ -100,7 +101,7 @@ export default NiceModal.create(function PinboardFormModal({
         reset({ title: '', description: '', isPublic: true });
         setFormLoading(false);
       }}
-      size="xs"
+      size="340px"
     >
       <Form
         layout="vertical"
@@ -128,7 +129,9 @@ export default NiceModal.create(function PinboardFormModal({
             <Controller
               name="description"
               control={control}
-              render={({ field }) => <Form.Control {...field} />}
+              render={({ field }) => (
+                <Form.Control {...field} accepter={TextAreaControl} rows={5} />
+              )}
             />
             {errors.description && (
               <Form.HelpText style={{ color: 'red' }}>{errors.description.message}</Form.HelpText>
@@ -140,7 +143,15 @@ export default NiceModal.create(function PinboardFormModal({
             <Controller
               name="isPublic"
               control={control}
-              render={({ field }) => <Form.Control accepter={Toggle} {...field} />}
+              render={({ field }) => (
+                /* @ts-expect-error incompatible type */
+                <Form.Control
+                  accepter={Toggle}
+                  {...field}
+                  checkedChildren="Yes"
+                  unCheckedChildren="No"
+                />
+              )}
             />
             {errors.description && (
               <Form.HelpText style={{ color: 'red' }}>{errors.description.message}</Form.HelpText>
@@ -149,7 +160,7 @@ export default NiceModal.create(function PinboardFormModal({
         </Modal.Body>
         <Modal.Footer>
           <Button appearance="primary" type="submit" loading={isSubmitting}>
-            Ok
+            Save
           </Button>
           <Button onClick={onClose} appearance="subtle" disabled={isSubmitting}>
             Cancel

@@ -73,7 +73,7 @@ export default NiceModal.create(function StreamFormModal({
       open={modal.visible}
       closeButton={isSubmitting ? false : undefined}
       onClose={onClose}
-      size="xs"
+      size="340px"
     >
       <Form layout="vertical" onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}>
         <Modal.Header>
@@ -96,7 +96,7 @@ export default NiceModal.create(function StreamFormModal({
         </Modal.Body>
         <Modal.Footer>
           <Button appearance="primary" type="submit" loading={isSubmitting}>
-            Ok
+            Save
           </Button>
           <Button onClick={onClose} appearance="subtle" disabled={isSubmitting}>
             Cancel

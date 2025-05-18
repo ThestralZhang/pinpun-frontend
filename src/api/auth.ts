@@ -34,7 +34,6 @@ export async function updateInfo(payload: {
   about?: string;
   avatarUrl?: string;
 }) {
-  console.log(payload);
   return await api
     .put(`/users`, payload)
     .then(() => {

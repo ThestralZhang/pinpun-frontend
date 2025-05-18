@@ -122,7 +122,7 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
         </Masonry>
 
         {isFetchingNextPage && <Loader center style={{ margin: '1rem' }} />}
-        {!hasNextPage && <div className="text-center p-4">— end of list —</div>}
+        {!hasNextPage && <div className="text-center p-4 mb-50">— end of list —</div>}
       </InfiniteScroll>
       <VStack className="fixed bottom-4 right-4">
         {showBackToTop && (

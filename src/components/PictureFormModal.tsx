@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/useAuthStore.ts';
 import PictureSelector from '@/components/PictureSelector.tsx';
 import PictureTagPicker from '@/components/PictureTagPicker.tsx';
 import { useRef, useState } from 'react';
+import TextAreaControl from '@/components/TextAreaControl.tsx';
 
 // 10 MB max file size
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -187,7 +188,7 @@ export default NiceModal.create(function PictureFormModal({
         reset(defaultFormValues);
         setFormLoading(false);
       }}
-      size="lg"
+      size="780px"
     >
       <Form
         layout="vertical"
@@ -198,7 +199,7 @@ export default NiceModal.create(function PictureFormModal({
           <Modal.Title>{mode == 'new' ? 'New Pin' : 'Edit Picture'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <HStack divider={<Divider vertical />}>
+          <HStack divider={<Divider vertical className="h-[600px]!" />} alignItems="flex-start">
             <Stack.Item>
               <Form.Group>
                 <Controller
@@ -234,7 +235,9 @@ export default NiceModal.create(function PictureFormModal({
                 <Controller
                   name="description"
                   control={control}
-                  render={({ field }) => <Form.Control {...field} />}
+                  render={({ field }) => (
+                    <Form.Control {...field} accepter={TextAreaControl} rows={5} />
+                  )}
                 />
                 {errors.description && (
                   <Form.HelpText style={{ color: 'red' }}>
@@ -254,8 +257,11 @@ export default NiceModal.create(function PictureFormModal({
                       {...field}
                       accepter={SelectPicker}
                       data={pinboards}
+                      cleanable={false}
                       labelKey="title"
                       valueKey="id"
+                      block
+                      className="w-[300px]"
                       onChange={(val) => {
                         field.onChange(val);
                         trigger('pinboardId');
@@ -276,7 +282,10 @@ export default NiceModal.create(function PictureFormModal({
                   name="pageUrl"
                   disabled={mode === 'edit'}
                   control={control}
-                  render={({ field }) => <Form.Control {...field} />}
+                  render={({ field }) => (
+                    // @ts-expect-error incompatible type
+                    <Form.Control {...field} accepter={TextAreaControl} rows={3} />
+                  )}
                 />
                 {errors.pageUrl && (
                   <Form.HelpText style={{ color: 'red' }}>{errors.pageUrl.message}</Form.HelpText>
@@ -306,7 +315,7 @@ export default NiceModal.create(function PictureFormModal({
         </Modal.Body>
         <Modal.Footer>
           <Button appearance="primary" type="submit" loading={isSubmitting}>
-            Ok
+            Save
           </Button>
           <Button onClick={onClose} appearance="subtle" disabled={isSubmitting}>
             Cancel

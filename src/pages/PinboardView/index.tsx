@@ -42,7 +42,7 @@ export default function PinboardView() {
   return (
     <div>
       <HStack
-        className="w-full pr-[40px] pl-3 py-3 mb-2 border-b border-gray-200"
+        className="w-full pr-[40px] pl-3 py-3 mb-3 border-b border-gray-200"
         justifyContent="space-between"
         alignItems="stretch"
       >

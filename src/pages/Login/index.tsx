@@ -1,7 +1,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Form, Button } from 'rsuite';
+import { Form, Button, ButtonToolbar } from 'rsuite';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { login } from '@/api/auth.ts';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
@@ -54,40 +54,47 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-50">
-      <Form layout="vertical" onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}>
-        <Form.Group>
-          <Form.ControlLabel>Email</Form.ControlLabel>
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => <Form.Control {...field} />}
-          />
-          {errors.email && (
-            <Form.HelpText style={{ color: 'red' }}>{errors.email.message}</Form.HelpText>
-          )}
-        </Form.Group>
+      <div className="px-10 py-8 rounded-3xl shadow-md bg-white">
+        <div className="text-center mb-10 text-[50px] text-blue-400 italic font-extrabold">
+          PinPun
+        </div>
+        <Form layout="vertical" onSubmit={(_status, event) => handleSubmit(onSubmit)(event)}>
+          <Form.Group>
+            <Form.ControlLabel>Email</Form.ControlLabel>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => <Form.Control {...field} />}
+            />
+            {errors.email && (
+              <Form.HelpText style={{ color: 'red' }}>{errors.email.message}</Form.HelpText>
+            )}
+          </Form.Group>
 
-        <Form.Group>
-          <Form.ControlLabel>Password</Form.ControlLabel>
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => <Form.Control {...field} type="password" />}
-          />
-          {errors.password && (
-            <Form.HelpText style={{ color: 'red' }}>{errors.password.message}</Form.HelpText>
-          )}
-        </Form.Group>
+          <Form.Group>
+            <Form.ControlLabel>Password</Form.ControlLabel>
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => <Form.Control {...field} type="password" />}
+            />
+            {errors.password && (
+              <Form.HelpText style={{ color: 'red' }}>{errors.password.message}</Form.HelpText>
+            )}
+          </Form.Group>
 
-        <Form.Group>
-          <Button appearance="primary" type="submit" loading={isSubmitting}>
-            Log in
-          </Button>
-          <Button disabled={isSubmitting} onClick={onSignUp}>
-            Sign up
-          </Button>
-        </Form.Group>
-      </Form>
+          <Form.Group>
+            <ButtonToolbar>
+              <Button appearance="primary" type="submit" loading={isSubmitting}>
+                Log in
+              </Button>
+              <Button disabled={isSubmitting} onClick={onSignUp}>
+                Sign up
+              </Button>
+            </ButtonToolbar>
+          </Form.Group>
+        </Form>
+      </div>
     </div>
   );
 }

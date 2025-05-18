@@ -4,7 +4,7 @@ import ImageDisplay from '@/components/ImageDisplay.tsx';
 import { MdEdit } from 'react-icons/md';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import type { IPictureExtended } from '@/types/picture.ts';
-import { FaMapPin } from 'react-icons/fa6';
+import { BsPinAngleFill } from 'react-icons/bs';
 import { pinPicture, toggleLikePicture } from '@/api/picture.ts';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
 import { useModal } from '@ebay/nice-modal-react';
@@ -26,7 +26,7 @@ function PictureCard(props: PictureCardProps) {
   const renderPinboardsToggle = () => {
     return (
       <IconButton
-        icon={<FaMapPin className="text-blue-500 scale-125" />}
+        icon={<BsPinAngleFill className="text-blue-500 scale-125" />}
         size="md"
         circle
         className="shadow-lg bg-white ml-2"
@@ -58,7 +58,7 @@ function PictureCard(props: PictureCardProps) {
         <div className="card-actions-wrapper w-full h-[50px] absolute" ref={actionWrapperRef}>
           <ButtonGroup className="float-right mt-2 mr-2">
             <Whisper
-              speaker={<Popover className="px-2! py-0.5!">{props.likeCount}</Popover>}
+              speaker={<Popover className="px-2! py-0.5! text-red-500">{props.likeCount}</Popover>}
               trigger="hover"
               placement="bottom"
               // @ts-expect-error current might be null
@@ -108,9 +108,20 @@ function PictureCard(props: PictureCardProps) {
                 pinPicture(props.id, pinboardId);
               }}
               className="ml-2"
+              menuStyle={{
+                maxHeight: 170,
+                maxWidth: 200,
+                overflow: 'hidden auto',
+                transform: 'translateY(1px)',
+              }}
             >
               {props.pinboards?.map((b) => (
-                <Dropdown.Item key={b.id} eventKey={b.id}>
+                <Dropdown.Item
+                  key={b.id}
+                  eventKey={b.id}
+                  title={b.name}
+                  className="block! truncate!"
+                >
                   {b.name}
                 </Dropdown.Item>
               ))}

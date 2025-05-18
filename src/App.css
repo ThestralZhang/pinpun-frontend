@@ -47,3 +47,15 @@ body > .rs-modal-wrapper ~ .rs-modal-wrapper {
     height: 100% !important;
   }
 }
+
+.rs-modal-content {
+  border-radius: 20px;
+}
+
+textarea.rs-input {
+  resize: none !important;
+}
+
+.new-item-dropdown.rs-dropdown-menu {
+  transform: translateX(-15px);
+}

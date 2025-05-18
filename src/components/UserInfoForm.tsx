@@ -160,7 +160,7 @@ export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
               name="about"
               control={control}
               render={({ field }) => (
-                <Form.Control {...field} accepter={TextAreaControl} rows={3} />
+                <Form.Control {...field} accepter={TextAreaControl} rows={4} />
               )}
             />
             {errors.about && (
@@ -173,7 +173,7 @@ export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
       <Form.Group>
         <ButtonToolbar>
           <Button appearance="primary" type="submit" loading={isSubmitting}>
-            Confirm
+            Save
           </Button>
           <Button disabled={isSubmitting} onClick={onCancel}>
             Cancel

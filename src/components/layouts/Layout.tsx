@@ -1,10 +1,11 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { Container, Content, IconButton, Sidebar, Sidenav, Stack, Text } from 'rsuite';
+import { Container, Content, IconButton, Sidebar, Sidenav, Stack } from 'rsuite';
 import { ArrowLeft, ArrowRight } from '@rsuite/icons';
 import { useState } from 'react';
 import UserProfile from '@/components/layouts/UserProfile.tsx';
 import SideMenu from '@/components/layouts/SideMenu.tsx';
 import NewItemDropdown from '@/components/layouts/NewItemDropdown.tsx';
+import classnames from 'classnames';
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -23,9 +24,17 @@ export default function Layout() {
         collapsible
       >
         <Sidenav.Header>
-          <Text color="blue" weight="bold" align="center" size="md" className="py-2">
+          <div
+            className={classnames(
+              'text-center mb-2 mt-2 text-blue-400 italic font-extrabold transition-all',
+              {
+                'text-[30px]': expand,
+                'text-[12px]': !expand,
+              },
+            )}
+          >
             PinPun
-          </Text>
+          </div>
         </Sidenav.Header>
         <SideMenu expand={expand} />
         <NewItemDropdown expand={expand} />

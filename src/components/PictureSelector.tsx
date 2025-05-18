@@ -1,4 +1,4 @@
-import { Button, Input, Text, Uploader } from 'rsuite';
+import { Button, Input, Uploader, VStack } from 'rsuite';
 import Cookies from 'js-cookie';
 import type { FileType } from 'rsuite/Uploader';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ export default function PictureSelector({
   const [isUploading, setIsUploading] = useState(false);
 
   return (
-    <div className="picture-selector">
+    <VStack className="picture-selector">
       <ImagePreview width={400} height={500} src={previewUrl || undefined} />
       {!isEdit && (
         <Uploader
@@ -74,9 +74,8 @@ export default function PictureSelector({
           <Button>Upload</Button>
         </Uploader>
       )}
-      {!isEdit && <Text>Or</Text>}
       <Input
-        placeholder={isEdit ? '--' : 'Paste source image URL here'}
+        placeholder={isEdit ? '--' : 'Or paste source image URL here'}
         disabled={isUploading || isEdit}
         value={value.srcImgUrl || ''}
         onChange={(val) => {
@@ -89,7 +88,9 @@ export default function PictureSelector({
           onChange({ ...value, isUploaded: false });
           trigger('picture.srcImgUrl');
         }}
+        as="textarea"
+        rows={4}
       />
-    </div>
+    </VStack>
   );
 }
