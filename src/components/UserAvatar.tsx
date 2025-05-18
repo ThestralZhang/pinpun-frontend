@@ -11,6 +11,8 @@ interface UserAvatarProps extends AvatarProps {
   avatarUrl?: string | null;
   placement?: DropdownProps['placement'];
   hoverMenu?: boolean;
+  noRedirect?: boolean;
+  onRedirect?: () => void;
 }
 
 export default function UserAvatar({
@@ -20,6 +22,8 @@ export default function UserAvatar({
   className,
   placement,
   hoverMenu = true,
+  noRedirect = false,
+  onRedirect,
   ...rest
 }: UserAvatarProps) {
   const navigate = useNavigate();
@@ -27,10 +31,11 @@ export default function UserAvatar({
 
   const onClickAvatar = (e: Event) => {
     e.stopPropagation();
-    if (userId === null || userId === undefined) {
+    if (userId === null || userId === undefined || noRedirect) {
       return;
     } else {
       navigate(`/users/${userId}`);
+      onRedirect?.();
     }
   };
 
@@ -42,7 +47,7 @@ export default function UserAvatar({
         alt={username?.charAt(0).toUpperCase()}
         title={username}
         onClick={onClickAvatar}
-        className={classnames('cursor-pointer hover:shadow-lg', className)}
+        className={classnames({ 'cursor-pointer hover:shadow-lg': !noRedirect }, className)}
         {...rest}
       />
     );
@@ -50,7 +55,6 @@ export default function UserAvatar({
 
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const onAddFriend = (e: any) => {
-    console.log('onAddFriend', userId, user);
     e.stopPropagation?.();
     if (!userId || userId === user?.userId || !hoverMenu) {
       return;

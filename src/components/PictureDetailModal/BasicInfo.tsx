@@ -62,6 +62,7 @@ export default function BasicInfo({
           size="xs"
           className="shrink-0"
           placement="leftStart"
+          onRedirect={onClose}
         />
       </HStack>
       <HStack alignItems="center" justifyContent="flex-end">
@@ -94,6 +95,7 @@ export default function BasicInfo({
           size="xs"
           className="shrink-0"
           placement="leftStart"
+          onRedirect={onClose}
         />
       </HStack>
 

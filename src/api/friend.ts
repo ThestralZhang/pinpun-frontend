@@ -72,5 +72,13 @@ export async function rejectFriendRequest(userId: number) {
 }
 
 export async function removeFriend(userId: number) {
-  console.log('remove', userId);
+  await api
+    .delete(`/friends/${userId}`)
+    .then(() => {
+      pushSuccessMessage('Friend removed successfully!');
+    })
+    .catch((err: AxiosResponse) => {
+      pushSuccessMessage('Failed to remove a friend');
+      throw err;
+    });
 }

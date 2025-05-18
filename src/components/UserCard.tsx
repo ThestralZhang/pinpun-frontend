@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import { removeFriend } from '@/api/friend.ts';
+import { useModal } from '@ebay/nice-modal-react';
+import DeletePromptModal from '@/components/DeletePromptModal.tsx';
 
 interface UserCardProps extends User {
   className?: string;
@@ -15,6 +17,7 @@ interface UserCardProps extends User {
 function UserCard(props: UserCardProps) {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
+  const deletePrompt = useModal(DeletePromptModal);
 
   const removeFriendMutation = useMutation({
     mutationFn: (userId: number) => removeFriend(userId),
@@ -53,9 +56,14 @@ function UserCard(props: UserCardProps) {
               circle
               className="shadow-lg bg-white"
               title="Remove Friend"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFriendMutation.mutateAsync(props.userId);
+              onClick={() => {
+                deletePrompt.show({
+                  content: 'You are going to remove this friend.\nAre you confirmed to continue?',
+                  onDelete: async () => {
+                    await removeFriendMutation.mutateAsync(props.userId);
+                    deletePrompt.hide();
+                  },
+                });
               }}
             />
           </ButtonGroup>

@@ -134,3 +134,20 @@ export async function followPinboard(pinboardId: number, streamName: string): Pr
       Promise.reject(err);
     });
 }
+
+export async function unfollowPinboard(pinboardId: number, streamName: string): Promise<void> {
+  await api
+    .delete(`/streams/${streamName}/pinboards/${pinboardId}`)
+    .then(() => {
+      pushSuccessMessage('Pinboard unfollowed successfully!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage(
+        err.status === 400
+          ? 'This pinboard is not in the stream yet.'
+          : // @ts-expect-error unknown type
+            err.response?.data.message,
+      );
+      Promise.reject(err);
+    });
+}
