@@ -31,6 +31,7 @@ export default NiceModal.create(function DeletePromptModal({
           onClick={async () => {
             setIsDeleting(true);
             await onDelete().finally(() => setIsDeleting(false));
+            modal.hide();
           }}
         >
           Confirm

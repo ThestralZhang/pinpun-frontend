@@ -1,15 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { getPinboardsInStream } from '@/api/pinboard.tsx';
 import { getStreams } from '@/api/stream.ts';
-import { HStack, Nav, SelectPicker } from 'rsuite';
+import { HStack, IconButton, Loader, Nav, SelectPicker } from 'rsuite';
 import PictureGallery from '@/components/PictureGallery.tsx';
 import { getPicturesInStream } from '@/api/picture.ts';
 import PinboardGallery from '@/components/PinboardGallery.tsx';
 import { useState } from 'react';
+import { ArrowDown, ArrowUp } from '@rsuite/icons';
+import StreamItem from '@/pages/Follows/StreamItem.tsx';
 
 export default function Follows() {
   const [viewBy, setViewBy] = useState<'pin' | 'board'>('pin');
   const [stream, setStream] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   const { data: streams, isLoading: streamLoading } = useQuery({
     queryKey: ['stream-list'],
@@ -47,7 +50,20 @@ export default function Follows() {
           onChange={setStream}
           label="Follow Stream"
         />
+        <IconButton
+          icon={expanded ? <ArrowUp /> : <ArrowDown />}
+          onClick={() => setExpanded((prev) => !prev)}
+        />
       </HStack>
+      {expanded && (
+        <HStack className="w-full pl-2 pb-5 pr-[40px]" wrap>
+          {streams ? (
+            streams.map((s) => <StreamItem streamName={s.name} key={s.name} />)
+          ) : (
+            <Loader />
+          )}
+        </HStack>
+      )}
       {stream ? (
         viewBy === 'pin' ? (
           <PictureGallery params={{ size: 30, stream }} fetchFn={getPictures} />

@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { IStream } from '@/types/stream.ts';
-import { createStream } from '@/api/stream.ts';
+import { createStream, updateStream } from '@/api/stream.ts';
 
 const schema = yup.object({
   name: yup.string().max(50).required('Stream name is required'),
@@ -14,8 +14,10 @@ const schema = yup.object({
 
 export default NiceModal.create(function StreamFormModal({
   mode = 'new',
+  streamName,
 }: {
   mode: 'new' | 'edit';
+  streamName?: string;
 }) {
   const modal = useModal();
   const queryClient = useQueryClient();
@@ -23,7 +25,17 @@ export default NiceModal.create(function StreamFormModal({
   const createMutation = useMutation({
     mutationFn: (newStream: IStream) => createStream(newStream),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['streams'] });
+      queryClient.invalidateQueries({ queryKey: ['stream-list'] });
+    },
+    onError: (errors) => {
+      console.log('errors', errors);
+    },
+  });
+
+  const editMutation = useMutation({
+    mutationFn: (payload: IStream) => updateStream(payload.name, streamName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stream-list'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -47,9 +59,12 @@ export default NiceModal.create(function StreamFormModal({
   };
 
   const onSubmit = async (data: IStream) => {
-    await createMutation.mutateAsync(data);
+    if (mode === 'new') {
+      await createMutation.mutateAsync(data);
+    } else if (mode === 'edit') {
+      await editMutation.mutateAsync(data);
+    }
     onClose();
-    // console.log(data);
   };
 
   return (
@@ -70,7 +85,9 @@ export default NiceModal.create(function StreamFormModal({
             <Controller
               name="name"
               control={control}
-              render={({ field }) => <Form.Control {...field} />}
+              render={({ field }) => (
+                <Form.Control {...field} placeholder={mode === 'edit' ? streamName : undefined} />
+              )}
             />
             {errors.name && (
               <Form.HelpText style={{ color: 'red' }}>{errors.name.message}</Form.HelpText>

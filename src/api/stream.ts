@@ -1,6 +1,7 @@
 import { api } from '@/api/client.tsx';
 import type { AxiosResponse } from 'axios';
 import type { IStream, IStreamExtended } from '@/types/stream.ts';
+import { pushErrorMessage, pushSuccessMessage } from '@/utils';
 
 interface IStreamBE {
   userId: number;
@@ -25,5 +26,40 @@ export async function getStreams(): Promise<IStream[]> {
 }
 
 export async function createStream({ name }: IStream): Promise<void> {
-  return await api.post(`/streams`, { name });
+  return await api
+    .post(`/streams`, { name })
+    .then(() => {
+      pushSuccessMessage('Follow Stream created successfully!');
+    })
+    .catch((err) => {
+      pushErrorMessage('Failed to create follow stream');
+      throw err;
+    });
+}
+
+export async function updateStream(newName: string, oldName?: string): Promise<void> {
+  if (!oldName) {
+    return;
+  }
+  return await api
+    .put(`/streams/${oldName}`, { name: newName })
+    .then(() => {
+      pushSuccessMessage('Follow Stream updated successfully!');
+    })
+    .catch((err) => {
+      pushErrorMessage('Failed to update follow stream');
+      throw err;
+    });
+}
+
+export async function deleteStream({ name }: IStream): Promise<void> {
+  return await api
+    .delete(`/streams/${name}`)
+    .then(() => {
+      pushSuccessMessage('Follow Stream deleted successfully!');
+    })
+    .catch((err) => {
+      pushErrorMessage('Failed to delete follow stream');
+      throw err;
+    });
 }
