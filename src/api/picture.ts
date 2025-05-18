@@ -5,6 +5,7 @@ import type {
   IPicture,
   IPictureExtended,
   IPicturesPaged,
+  PictureSort,
 } from '@/types/picture.ts';
 import { pushErrorMessage, pushSuccessMessage } from '@/utils';
 
@@ -67,7 +68,7 @@ function formatPicture2FE(beData: IPictureBE): IPictureExtended {
 interface IPageSortParams {
   page: number;
   size: number;
-  sort?: `${'time' | 'likes' | 'relevance'},${'desc' | 'asc'}`;
+  sort?: PictureSort;
   search?: string;
 }
 

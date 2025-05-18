@@ -10,10 +10,12 @@ import PictureFormModal from '@/components/PictureFormModal.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import { GoHeart, GoHeartFill } from 'react-icons/go';
 import PictureDetailModal from '@/components/PictureDetailModal';
+import classnames from 'classnames';
 
 export interface PictureCardProps extends IPictureExtended {
   type: 'picture';
   pinboards?: { id: number; name: string }[];
+  className?: string;
 }
 
 function PictureCard(props: PictureCardProps) {
@@ -41,8 +43,7 @@ function PictureCard(props: PictureCardProps) {
 
   return (
     <Card
-      width={320}
-      className="picture-card rounded-2xl!"
+      className={classnames(props.className, 'picture-card rounded-2xl! border-0!')}
       shaded="hover"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

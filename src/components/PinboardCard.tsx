@@ -11,10 +11,12 @@ import StackItem from 'rsuite/StackItem';
 import { followPinboard } from '@/api/pinboard.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import PinboardFormModal from '@/components/PinboardFormModal.tsx';
+import classnames from 'classnames';
 
 export interface PinboardCardProps extends IPinboardExtended {
   type: 'pinboard';
   streams?: string[];
+  className?: string;
 }
 
 function PinboardCard(props: PinboardCardProps) {
@@ -41,8 +43,7 @@ function PinboardCard(props: PinboardCardProps) {
 
   return (
     <Card
-      width={320}
-      className="pinboard-card rounded-2xl!"
+      className={classnames(props.className, 'pinboard-card rounded-2xl!')}
       shaded="hover"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

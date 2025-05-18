@@ -40,6 +40,8 @@ export interface IPicturesPaged {
   totalCount: number;
 }
 
+export type PictureSort = `${'time' | 'likes' | 'relevance'},${'desc' | 'asc'}`;
+
 export interface IComment {
   content: string;
 }
