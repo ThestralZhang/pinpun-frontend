@@ -1,10 +1,11 @@
 import { getPictures } from '@/api/picture.ts';
 import PictureGallery from '@/components/PictureGallery.tsx';
 import { HStack, IconButton, Input, Nav, SelectPicker } from 'rsuite';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RiSortAsc, RiSortDesc } from 'react-icons/ri';
 import PinboardGallery from '@/components/PinboardGallery.tsx';
 import { getPinboards } from '@/api/pinboard.tsx';
+import type { PictureSort } from '@/types';
 
 const sortOptions = [
   { label: 'Created Time', value: 'time' as const },
@@ -54,6 +55,23 @@ export default function Explore() {
     setSort('relevance');
   };
 
+  const pictureParams = useMemo(
+    () => ({
+      size: 30,
+      sort: `${sort},${order}` as PictureSort,
+      search: debouncedSearch,
+    }),
+    [sort, order, debouncedSearch],
+  );
+
+  const pinboardParams = useMemo(
+    () => ({
+      size: 30,
+      search: debouncedSearch,
+    }),
+    [sort, debouncedSearch],
+  );
+
   return (
     <div>
       <HStack className="w-full h-[60px] pr-[40px]">
@@ -90,14 +108,9 @@ export default function Explore() {
         />
       </HStack>
       {viewBy === 'pin' ? (
-        <PictureGallery
-          pageSize={30}
-          fetchFn={getPictures}
-          search={debouncedSearch}
-          sort={`${sort},${order}`}
-        />
+        <PictureGallery params={pictureParams} fetchFn={getPictures} />
       ) : (
-        <PinboardGallery pageSize={30} fetchFn={getPinboards} search={debouncedSearch} />
+        <PinboardGallery params={pinboardParams} fetchFn={getPinboards} />
       )}
     </div>
   );

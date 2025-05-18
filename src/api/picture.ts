@@ -112,6 +112,27 @@ export async function getPicturesByUser(
     }));
 }
 
+// get pictures pinned/repinned in a follow stream
+export async function getPicturesInStream(
+  streamName: string | null,
+  params: { page: number; size: number },
+): Promise<IPicturesPaged> {
+  if (streamName === null || streamName === undefined) {
+    return {
+      data: [],
+      totalCount: 0,
+      totalPages: 0,
+    };
+  }
+  return await api
+    .get(`/streams/${streamName}/pictures`, { params })
+    .then((rsp: AxiosResponse<IPicturesPagedBE>) => ({
+      data: rsp.data?.pictures.map(formatPicture2FE),
+      totalPages: rsp.data?.totalPageCount,
+      totalCount: rsp.data?.totalPictureCount,
+    }));
+}
+
 export async function createPicture(data: IPicture): Promise<number> {
   return await api
     .post(`/pinboards/${data.pinboardId}/pictures`, {

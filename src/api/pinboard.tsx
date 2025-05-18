@@ -69,6 +69,27 @@ export async function getPinboardsByUser(userId?: number | null): Promise<IPinbo
     .then((rsp: AxiosResponse<IPinboardBE[]>) => rsp.data?.map(formatPinboard2FE));
 }
 
+// get pinboards in a follow stream
+export async function getPinboardsInStream(
+  streamName: string | null,
+  params: { page: number; size: number },
+): Promise<IPinboardsPaged> {
+  if (streamName === null || streamName === undefined) {
+    return {
+      data: [],
+      totalCount: 0,
+      totalPages: 0,
+    };
+  }
+  return await api
+    .get(`/streams/${streamName}/pinboards`, { params })
+    .then((rsp: AxiosResponse<IPinboardPagedBE>) => ({
+      data: rsp.data?.pinboards.map(formatPinboard2FE),
+      totalPages: rsp.data?.totalPageCount,
+      totalCount: rsp.data?.totalPinboardCount,
+    }));
+}
+
 export async function createPinboard({ title, description, isPublic }: IPinboard): Promise<number> {
   return await api
     .post(`/pinboards`, { name: title, description, isPublic })

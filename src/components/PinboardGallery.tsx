@@ -17,13 +17,20 @@ const breakpointCols = {
   700: 1,
 };
 
-interface PinboardGalleryProps {
+interface PinboardListParams {
+  page: number;
+  size: number;
   search?: string;
-  pageSize: number;
-  fetchFn: (params: { page: number; size: number; search?: string }) => Promise<IPinboardsPaged>;
+  stream?: string;
+  userId?: number;
 }
 
-export default function PinboardGallery({ search, pageSize, fetchFn }: PinboardGalleryProps) {
+interface PinboardGalleryProps {
+  params: Omit<PinboardListParams, 'page'>;
+  fetchFn: (params: PinboardListParams) => Promise<IPinboardsPaged>;
+}
+
+export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProps) {
   const queryClient = useQueryClient();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -52,8 +59,8 @@ export default function PinboardGallery({ search, pageSize, fetchFn }: PinboardG
     error,
     refetch,
   } = useInfiniteQuery<IPinboardsPaged>({
-    queryKey: ['pinboards', { search }],
-    queryFn: ({ pageParam }) => fetchFn({ page: pageParam as number, size: pageSize, search }),
+    queryKey: ['pinboards', params],
+    queryFn: ({ pageParam }) => fetchFn({ ...params, page: pageParam as number }),
     initialPageParam: 1,
     getNextPageParam: (lastPageData, allPageData) => {
       const next = allPageData.length + 1;
@@ -68,7 +75,7 @@ export default function PinboardGallery({ search, pageSize, fetchFn }: PinboardG
   // Pull-to-refresh: re-fetch page 1
   const handleRefresh = async () => {
     queryClient.removeQueries({
-      queryKey: ['pinboards', { search }],
+      queryKey: ['pinboards', params],
       exact: true,
     });
     await refetch();
@@ -86,7 +93,7 @@ export default function PinboardGallery({ search, pageSize, fetchFn }: PinboardG
     <div
       id="pinboardGalleryContainer"
       ref={containerRef}
-      className="h-screen overflow-y-auto mr-7 px-3"
+      className="h-screen overflow-y-auto overflow-x-hidden mr-7 px-3"
     >
       <InfiniteScroll
         dataLength={pinboards.length}
@@ -104,6 +111,7 @@ export default function PinboardGallery({ search, pageSize, fetchFn }: PinboardG
           <h4 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h4>
         }
         scrollableTarget="pictureGalleryContainer"
+        className="overflow-x-hidden!"
       >
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pinboards.map((board) => (

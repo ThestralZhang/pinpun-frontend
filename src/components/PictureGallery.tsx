@@ -18,19 +18,22 @@ const breakpointCols = {
   700: 1,
 };
 
-interface PictureGalleryProps {
-  search?: string;
+interface PictureListParams {
+  page: number;
+  size: number;
   sort?: PictureSort;
-  pageSize: number;
-  fetchFn: (params: {
-    page: number;
-    size: number;
-    search?: string;
-    sort?: PictureSort;
-  }) => Promise<IPicturesPaged>;
+  search?: string;
+  stream?: string;
+  userId?: number;
+  pinboardId?: number;
 }
 
-export default function PictureGallery({ search, sort, pageSize, fetchFn }: PictureGalleryProps) {
+interface PictureGalleryProps {
+  params: Omit<PictureListParams, 'page'>;
+  fetchFn: (params: PictureListParams) => Promise<IPicturesPaged>;
+}
+
+export default function PictureGallery({ params, fetchFn }: PictureGalleryProps) {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,7 +48,7 @@ export default function PictureGallery({ search, sort, pageSize, fetchFn }: Pict
   }, []);
 
   const { data: pinboards } = useQuery({
-    queryKey: ['pinboards', { userId: user?.userId }],
+    queryKey: ['pinboard-list', { userId: user?.userId }],
     queryFn: () => getPinboardsByUser(user?.userId),
     select: (data) => data.map((b) => ({ id: b.id, name: b.title })),
   });
@@ -60,9 +63,8 @@ export default function PictureGallery({ search, sort, pageSize, fetchFn }: Pict
     error,
     refetch,
   } = useInfiniteQuery<IPicturesPaged>({
-    queryKey: ['pictures', { search, sort }],
-    queryFn: ({ pageParam }) =>
-      fetchFn({ page: pageParam as number, size: pageSize, sort, search }),
+    queryKey: ['picture-list', params],
+    queryFn: ({ pageParam }) => fetchFn({ ...params, page: pageParam as number }),
     initialPageParam: 1,
     getNextPageParam: (lastPageData, allPageData) => {
       const next = allPageData.length + 1;
@@ -77,7 +79,7 @@ export default function PictureGallery({ search, sort, pageSize, fetchFn }: Pict
   // Pull-to-refresh: re-fetch page 1
   const handleRefresh = async () => {
     queryClient.removeQueries({
-      queryKey: ['pictures', { search, sort }],
+      queryKey: ['picture-list', params],
       exact: true,
     });
     await refetch();
@@ -95,7 +97,7 @@ export default function PictureGallery({ search, sort, pageSize, fetchFn }: Pict
     <div
       id="pictureGalleryContainer"
       ref={containerRef}
-      className="h-screen overflow-y-auto mr-7 px-3"
+      className="h-screen overflow-y-auto overflow-x-hidden mr-7 px-3"
     >
       <InfiniteScroll
         dataLength={pictures.length}
@@ -113,6 +115,7 @@ export default function PictureGallery({ search, sort, pageSize, fetchFn }: Pict
           <h4 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h4>
         }
         scrollableTarget="pictureGalleryContainer"
+        className="overflow-x-hidden!"
       >
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pictures.map((pic) => (
