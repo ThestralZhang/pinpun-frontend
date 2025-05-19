@@ -170,7 +170,7 @@ export default function PinboardView() {
                 }}
               >
                 {streams?.map((s) => (
-                  <Dropdown.Item key={s.name} eventKey={s}>
+                  <Dropdown.Item key={s.name} eventKey={s.name}>
                     {s.name}
                   </Dropdown.Item>
                 ))}
