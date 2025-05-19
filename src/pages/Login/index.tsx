@@ -5,6 +5,7 @@ import { Form, Button, ButtonToolbar } from 'rsuite';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { login } from '@/api/auth.ts';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
+import { pushErrorMessage } from '@/utils';
 
 // Define the shape of the login form data
 interface LoginFormInputs {
@@ -44,7 +45,8 @@ export default function Login() {
       setUser(user);
       navigate('/');
     } catch (err) {
-      console.error('Login failed:', err);
+      pushErrorMessage('Failed to login');
+      throw err;
     }
   };
 

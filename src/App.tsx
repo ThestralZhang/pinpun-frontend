@@ -16,7 +16,7 @@ import FriendSettings from '@/pages/FriendSettings';
 import UserHome from '@/pages/UserHome';
 import NiceModal from '@ebay/nice-modal-react';
 import PinboardView from '@/pages/PinboardView';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient();
 
@@ -58,7 +58,7 @@ export default function App() {
           </Routes>
         </NiceModal.Provider>
       </BrowserRouter>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/*<ReactQueryDevtools initialIsOpen={false} />*/}
     </QueryClientProvider>
   );
 }

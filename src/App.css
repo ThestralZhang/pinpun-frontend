@@ -58,9 +58,9 @@ textarea.rs-input {
 
 .new-item-dropdown.rs-dropdown-menu {
   &.expanded {
-    transform: translateX(-22px);
+    transform: translateX(-24px);
   }
   &.folded {
-    transform: translateX(-6px);
+    transform: translateX(100px);
   }
 }

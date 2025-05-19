@@ -20,7 +20,7 @@ export default function NewItemDropdown({ expand }: { expand?: boolean }) {
 
   return (
     <Dropdown
-      placement="rightEnd"
+      placement="topEnd"
       noCaret
       renderToggle={renderToggle}
       className={classnames(
