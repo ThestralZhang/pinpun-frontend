@@ -9,14 +9,14 @@ import {
 import { MdEdit } from 'react-icons/md';
 import { BsPinAngleFill } from 'react-icons/bs';
 import { FaTrashCan } from 'react-icons/fa6';
-import type { IPictureExtended } from '@/types/picture.ts';
-import { useQuery } from '@tanstack/react-query';
+import type { IPictureExtended, IPicturesPaged } from '@/types/picture.ts';
+import { type InfiniteData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
 import { getPinboardsByUser } from '@/api/pinboard.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
 import DeletePromptModal from '@/components/DeletePromptModal.tsx';
-import { useMemo } from 'react';
+import { type MouseEvent, useMemo } from 'react';
 
 export default function OperationBar({
   pictureData,
@@ -28,6 +28,7 @@ export default function OperationBar({
   const loginUser = useAuthStore((s) => s.user);
   const pictureFormModal = useModal(PictureFormModal);
   const deletePromptModal = useModal(DeletePromptModal);
+  const queryClient = useQueryClient();
 
   const renderPinboardsToggle = () => {
     return (
@@ -57,6 +58,58 @@ export default function OperationBar({
     return <Placeholder.Graph active className="w-full! h-[60px]! rounded-2xl mt-5" />;
   }
 
+  const onClickLike = async (e: MouseEvent) => {
+    e.stopPropagation();
+    const picId = pictureData.id as number;
+    await toggleLikePicture(picId);
+    const newLikeCount = pictureData.likeByMe
+      ? pictureData.likeCount - 1
+      : pictureData.likeCount + 1;
+    queryClient.setQueriesData<InfiniteData<IPicturesPaged>>(
+      { queryKey: ['paged-pictures'] },
+      (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            data: page.data.map((pic) =>
+              pic.id === picId
+                ? {
+                    ...pic,
+                    likeByMe: !pictureData.likeByMe,
+                    likeCount: newLikeCount,
+                  }
+                : pic,
+            ),
+          })),
+        };
+      },
+    );
+    queryClient.setQueriesData<IPictureExtended>(
+      { queryKey: ['picture', picId], exact: true },
+      (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          likeByMe: !pictureData.likeByMe,
+          likeCount: newLikeCount,
+        };
+      },
+    );
+    queryClient.invalidateQueries({ queryKey: ['user-stats', pictureData.originalUserId] });
+  };
+
+  const onPin = async (pinboardId: number, e: MouseEvent) => {
+    e.stopPropagation();
+    await pinPicture(pictureData.id, pinboardId);
+    queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+    queryClient.invalidateQueries({ queryKey: ['paged-pictures', { userId: loginUser?.userId }] });
+    queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+    queryClient.invalidateQueries({ queryKey: ['pinboard', pinboardId] });
+    queryClient.invalidateQueries({ queryKey: ['user-stats', pictureData.originalUserId] });
+  };
+
   return (
     <ButtonToolbar className="w-full! h-[60px] bg-gray-100 rounded-2xl justify-around">
       <HStack>
@@ -72,10 +125,7 @@ export default function OperationBar({
           circle
           className="bg-white! hover:shadow-lg"
           title={pictureData.likeByMe ? 'Unlike' : 'Like'}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleLikePicture(pictureData.id);
-          }}
+          onClick={onClickLike}
         />
         <div className="text-red-500">{pictureData.likeCount}</div>
       </HStack>
@@ -83,10 +133,8 @@ export default function OperationBar({
         renderToggle={renderPinboardsToggle}
         trigger="hover"
         placement="bottomEnd"
-        onSelect={(pinboardId: number, e) => {
-          e.stopPropagation();
-          pinPicture(pictureData.id, pinboardId);
-        }}
+        // @ts-expect-error event type
+        onSelect={onPin}
         className="ml-2"
         menuStyle={{
           maxHeight: 300,
@@ -168,7 +216,7 @@ export default function OperationBar({
                 } else {
                   await deletePinnedPicture(pictureData.id);
                 }
-                deletePromptModal.hide();
+                queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
                 onClose();
               },
             });

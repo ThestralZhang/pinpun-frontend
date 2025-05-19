@@ -45,6 +45,7 @@ function PictureCard(props: PictureCardProps) {
   const onClickLike = async (e: MouseEvent) => {
     e.stopPropagation();
     await toggleLikePicture(props.id);
+    const newLikeCount = props.likeByMe ? props.likeCount - 1 : props.likeCount + 1;
     queryClient.setQueriesData<InfiniteData<IPicturesPaged>>(
       { queryKey: ['paged-pictures'] },
       (oldData) => {
@@ -58,7 +59,7 @@ function PictureCard(props: PictureCardProps) {
                 ? {
                     ...pic,
                     likeByMe: !props.likeByMe,
-                    likeCount: props.likeByMe ? props.likeCount - 1 : props.likeCount + 1,
+                    likeCount: newLikeCount,
                   }
                 : pic,
             ),
@@ -66,6 +67,28 @@ function PictureCard(props: PictureCardProps) {
         };
       },
     );
+    queryClient.setQueriesData<IPictureExtended>(
+      { queryKey: ['picture', props.id], exact: true },
+      (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          likeByMe: !props.likeByMe,
+          likeCount: newLikeCount,
+        };
+      },
+    );
+    queryClient.invalidateQueries({ queryKey: ['user-stats', props.originalUserId] });
+  };
+
+  const onPin = async (pinboardId: number, e: MouseEvent) => {
+    e.stopPropagation();
+    await pinPicture(props.id, pinboardId);
+    queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+    queryClient.invalidateQueries({ queryKey: ['paged-pictures', { userId: loginUser?.userId }] });
+    queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+    queryClient.invalidateQueries({ queryKey: ['pinboard', pinboardId] });
+    queryClient.invalidateQueries({ queryKey: ['user-stats', props.originalUserId] });
   };
 
   return (
@@ -128,10 +151,8 @@ function PictureCard(props: PictureCardProps) {
               renderToggle={renderPinboardsToggle}
               trigger="hover"
               placement="bottomEnd"
-              onSelect={(pinboardId: number, e) => {
-                e.stopPropagation();
-                pinPicture(props.id, pinboardId);
-              }}
+              // @ts-expect-error event type
+              onSelect={onPin}
               className="ml-2"
               menuStyle={{
                 maxHeight: 170,

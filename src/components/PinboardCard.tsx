@@ -12,6 +12,7 @@ import { followPinboard } from '@/api/pinboard.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import PinboardFormModal from '@/components/PinboardFormModal.tsx';
 import classnames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface PinboardCardProps extends IPinboardExtended {
   streams?: string[];
@@ -24,6 +25,7 @@ function PinboardCard(props: PinboardCardProps) {
   const navigate = useNavigate();
   const loginUser = useAuthStore((s) => s.user);
   const pinboardModal = useModal(PinboardFormModal);
+  const queryClient = useQueryClient();
 
   const renderStreamToggle = () => {
     return (
@@ -88,9 +90,15 @@ function PinboardCard(props: PinboardCardProps) {
                 renderToggle={renderStreamToggle}
                 trigger="hover"
                 placement="bottomEnd"
-                onSelect={(streamName: string, e) => {
+                onSelect={async (streamName: string, e) => {
                   e.stopPropagation();
-                  followPinboard(props.id, streamName);
+                  await followPinboard(props.id, streamName);
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pinboards', { stream: streamName }],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pictures', { stream: streamName }],
+                  });
                 }}
                 menuStyle={{
                   maxHeight: 170,

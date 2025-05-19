@@ -67,10 +67,7 @@ function UserCard(props: UserCardProps) {
                 e.stopPropagation();
                 deletePrompt.show({
                   content: 'You are going to remove this friend.\nAre you confirmed to continue?',
-                  onDelete: async () => {
-                    await removeFriendMutation.mutateAsync(props.userId);
-                    deletePrompt.hide();
-                  },
+                  onDelete: () => removeFriendMutation.mutateAsync(props.userId),
                 });
               }}
             />

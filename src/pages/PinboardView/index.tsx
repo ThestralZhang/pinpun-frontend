@@ -38,7 +38,6 @@ export default function PinboardView() {
   const { data: streams } = useQuery({
     queryKey: ['streams'],
     queryFn: () => getStreams(),
-    select: (data) => data.map((s) => s.name),
   });
 
   const getPictures = async ({ page, size }: { page: number; size: number }) => {
@@ -112,10 +111,7 @@ export default function PinboardView() {
                 onClick={() => {
                   deletePrompt.show({
                     content: 'You are going to delete a pinboard.\n Are you confirmed to continue?',
-                    onDelete: async () => {
-                      deleteMutation.mutateAsync();
-                      deletePrompt.hide();
-                    },
+                    onDelete: () => deleteMutation.mutateAsync(),
                   });
                 }}
               >
@@ -139,8 +135,8 @@ export default function PinboardView() {
                 }}
               >
                 {streams?.map((s) => (
-                  <Dropdown.Item key={s} eventKey={s}>
-                    {s}
+                  <Dropdown.Item key={s.name} eventKey={s.name}>
+                    {s.name}
                   </Dropdown.Item>
                 ))}
               </Dropdown>
@@ -161,8 +157,8 @@ export default function PinboardView() {
                 }}
               >
                 {streams?.map((s) => (
-                  <Dropdown.Item key={s} eventKey={s}>
-                    {s}
+                  <Dropdown.Item key={s.name} eventKey={s}>
+                    {s.name}
                   </Dropdown.Item>
                 ))}
               </Dropdown>

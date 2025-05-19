@@ -2,7 +2,7 @@ import { HStack, IconButton, Input, List, Placeholder, Stack, VStack } from 'rsu
 import UserAvatar from '@/components/UserAvatar.tsx';
 import { getDateTimeString, timeAgo } from '@/utils';
 import { Close, Send } from '@rsuite/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { commentOnPicture, deleteCommentOnPicture, getCommentsOnPicture } from '@/api/picture.ts';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,7 @@ export default function CommentArea({
   const navigate = useNavigate();
   const loginUser = useAuthStore((s) => s.user);
   const deletePromptModal = useModal(DeletePromptModal);
+  const queryClient = useQueryClient();
 
   const [myComment, setMyComment] = useState('');
 
@@ -37,12 +38,16 @@ export default function CommentArea({
     mutationFn: () => commentOnPicture(pinboardId, pictureId, myComment),
     onSuccess: () => {
       setMyComment('');
+      queryClient.invalidateQueries({ queryKey: ['comments'] });
     },
     onError: () => {},
   });
 
   const deleteCommentMutation = useMutation({
     mutationFn: (commentId: number) => deleteCommentOnPicture(commentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    },
   });
 
   if (!commentData) {

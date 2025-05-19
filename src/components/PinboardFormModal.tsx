@@ -46,8 +46,8 @@ export default NiceModal.create(function PinboardFormModal({
         username: loginUser?.name as string,
         userAvatarUrl: loginUser?.avatarUrl || null,
         coverUrls: [],
-        createdAt: null,
-        updatedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
     },
     onSuccess: (newBoard) => {

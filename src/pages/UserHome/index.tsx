@@ -115,10 +115,7 @@ export default function UserHome() {
                 onClick={() => {
                   deletePrompt.show({
                     content: 'You are going to remove this friend.\nAre you confirmed to continue?',
-                    onDelete: async () => {
-                      await removeFriendMutation.mutateAsync(userId);
-                      deletePrompt.hide();
-                    },
+                    onDelete: () => removeFriendMutation.mutateAsync(userId),
                   });
                 }}
               >

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPinboardsInStream } from '@/api/pinboard.tsx';
-import { getStreams } from '@/api/stream.ts';
+import { deleteStream, getStreams } from '@/api/stream.ts';
 import { HStack, IconButton, Nav, Placeholder, SelectPicker } from 'rsuite';
 import PictureGallery from '@/components/PictureGallery.tsx';
 import { getPicturesInStream } from '@/api/picture.ts';
@@ -8,14 +8,21 @@ import PinboardGallery from '@/components/PinboardGallery.tsx';
 import { useState } from 'react';
 import { ArrowDown, ArrowUp } from '@rsuite/icons';
 import StreamItem from '@/pages/Follows/StreamItem.tsx';
+import { useModal } from '@ebay/nice-modal-react';
+import StreamFormModal from '@/components/StreamFormModal.tsx';
+import DeletePromptModal from '@/components/DeletePromptModal.tsx';
 
 export default function Follows() {
+  const streamFormModal = useModal(StreamFormModal);
+  const deletePrompt = useModal(DeletePromptModal);
+  const queryClient = useQueryClient();
+
   const [viewBy, setViewBy] = useState<'pin' | 'board'>('pin');
   const [stream, setStream] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const { data: streamList, isLoading: streamLoading } = useQuery({
-    queryKey: ['stream-list'],
+    queryKey: ['streams'],
     queryFn: () =>
       getStreams().then((data) => {
         if (!stream) {
@@ -31,6 +38,31 @@ export default function Follows() {
 
   const getPinboards = async (params: { page: number; size: number }) => {
     return await getPinboardsInStream(stream, { page: params.page, size: params.size });
+  };
+
+  const onEdit = (name: string) => {
+    streamFormModal.show({
+      mode: 'edit',
+      streamName: name,
+      onEditSuccess: (newName: string) => {
+        if (stream === name) {
+          setStream(newName);
+        }
+      },
+    });
+  };
+
+  const onDelete = (name: string) => {
+    deletePrompt.show({
+      content: 'You are going to delete this follow stream.\n Are you confirmed to continue?',
+      onDelete: async () => {
+        await deleteStream({ name });
+        await queryClient.invalidateQueries({ queryKey: ['streams'] });
+        if (stream === name) {
+          setStream(null);
+        }
+      },
+    });
   };
 
   if (!streamList) {
@@ -62,7 +94,12 @@ export default function Follows() {
       {expanded && (
         <HStack className="w-full pl-2 pb-5 pr-[40px]" wrap>
           {streamList.map((s) => (
-            <StreamItem streamName={s.name} key={s.name} />
+            <StreamItem
+              streamName={s.name}
+              key={s.name}
+              onEdit={() => onEdit(s.name)}
+              onDelete={() => onDelete(s.name)}
+            />
           ))}
         </HStack>
       )}

@@ -15,9 +15,11 @@ const schema = yup.object({
 export default NiceModal.create(function StreamFormModal({
   mode = 'new',
   streamName,
+  onEditSuccess,
 }: {
   mode: 'new' | 'edit';
   streamName?: string;
+  onEditSuccess?: (newName: string) => void;
 }) {
   const modal = useModal();
   const queryClient = useQueryClient();
@@ -25,7 +27,7 @@ export default NiceModal.create(function StreamFormModal({
   const createMutation = useMutation({
     mutationFn: (newStream: IStream) => createStream(newStream),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stream-list'] });
+      queryClient.invalidateQueries({ queryKey: ['streams'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -34,8 +36,9 @@ export default NiceModal.create(function StreamFormModal({
 
   const editMutation = useMutation({
     mutationFn: (payload: IStream) => updateStream(payload.name, streamName),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stream-list'] });
+    onSuccess: async (_i, payload) => {
+      await queryClient.invalidateQueries({ queryKey: ['streams'] });
+      onEditSuccess?.(payload.name);
     },
     onError: (errors) => {
       console.log('errors', errors);

@@ -49,8 +49,9 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
   const { data: streams } = useQuery({
     queryKey: ['streams'],
     queryFn: () => getStreams(),
-    select: (data) => data.map((s) => s.name),
   });
+
+  const memoStreams = useMemo(() => (streams ? streams.map((s) => s.name) : []), []);
 
   const {
     data: infinitePinboardData,
@@ -118,7 +119,7 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pinboards.map((board) => (
             <div key={`board-${board.id}`}>
-              <PinboardCard streams={streams} className="mb-4" {...board} />
+              <PinboardCard streams={memoStreams} className="mb-4" {...board} />
             </div>
           ))}
         </Masonry>

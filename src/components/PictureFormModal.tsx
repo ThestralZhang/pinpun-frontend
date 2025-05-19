@@ -4,8 +4,8 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { IPicture, IPictureFormInputs } from '@/types/picture.ts';
+import { type DefaultError, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { IPicture, IPictureExtended, IPictureFormInputs } from '@/types/picture.ts';
 import { createPicture, getPictureById, updatePicture } from '@/api/picture.ts';
 import type { IPinboardExtended } from '@/types';
 import { getPinboardsByUser } from '@/api/pinboard.tsx';
@@ -88,6 +88,7 @@ export default NiceModal.create(function PictureFormModal({
   pinboardId?: number;
 }) {
   const modal = useModal();
+  const queryClient = useQueryClient();
   const [formLoading, setFormLoading] = useState(false);
   const loginUser = useAuthStore((s) => s.user);
 
@@ -96,10 +97,31 @@ export default NiceModal.create(function PictureFormModal({
     queryFn: () => getPinboardsByUser(loginUser?.userId),
   });
 
-  const createMutation = useMutation({
-    mutationFn: (newPicture: IPicture) => createPicture(newPicture),
+  const createMutation = useMutation<IPictureExtended, DefaultError, IPicture>({
+    mutationFn: async (newPicture: IPicture) => {
+      const newId = await createPicture(newPicture);
+      return {
+        ...newPicture,
+        id: newId,
+        pinboardName: pinboards?.find((b) => b.id === newPicture.pinboardId)?.title || '',
+        userId: loginUser?.userId as number,
+        username: loginUser?.name as string,
+        userAvatarUrl: loginUser?.avatarUrl as string,
+        isRepin: false,
+        originalUserId: loginUser?.userId as number,
+        originalUserName: loginUser?.name as string,
+        originalUserAvatarUrl: loginUser?.avatarUrl as string,
+        originalPinboardId: newPicture.pinboardId,
+        originalPinboardName: pinboards?.find((b) => b.id === newPicture.pinboardId)?.title || '',
+        likeCount: 0,
+        likeByMe: false,
+        pinnedAt: new Date(),
+      };
+    },
     onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ['pictures'] });
+      queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
+      queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+      queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -109,7 +131,9 @@ export default NiceModal.create(function PictureFormModal({
   const editMutation = useMutation({
     mutationFn: (payload: IPicture) => updatePicture(pictureId as number, payload),
     onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ['pictures'] });
+      queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
+      queryClient.invalidateQueries({ queryKey: ['picture', pictureId] });
+      queryClient.invalidateQueries({ queryKey: ['tag'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
