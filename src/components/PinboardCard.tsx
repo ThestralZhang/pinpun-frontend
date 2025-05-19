@@ -22,7 +22,7 @@ function PinboardCard(props: PinboardCardProps) {
   const coverNum = props.coverUrls?.length;
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const pinboardModal = useModal(PinboardFormModal);
 
   const renderStreamToggle = () => {
@@ -83,7 +83,7 @@ function PinboardCard(props: PinboardCardProps) {
       {hovered && (
         <div className="card-actions-wrapper w-full h-[50px] absolute">
           <ButtonGroup className="float-right mt-2 mr-2">
-            {props.userId !== user?.userId && (
+            {props.userId !== loginUser?.userId && (
               <Dropdown
                 renderToggle={renderStreamToggle}
                 trigger="hover"
@@ -107,7 +107,7 @@ function PinboardCard(props: PinboardCardProps) {
               </Dropdown>
             )}
 
-            {props.userId === user?.userId && (
+            {props.userId === loginUser?.userId && (
               <IconButton
                 icon={<MdEdit className="text-blue-500" />}
                 size="md"

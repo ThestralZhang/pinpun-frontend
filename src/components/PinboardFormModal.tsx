@@ -4,11 +4,17 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  type DefaultError,
+  type InfiniteData,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { createPinboard, getPinboardById, updatePinboard } from '@/api/pinboard.tsx';
-import type { IPinboard } from '@/types';
+import type { IPinboard, IPinboardExtended, IPinboardsPaged } from '@/types';
 import { useRef, useState } from 'react';
 import TextAreaControl from '@/components/TextAreaControl.tsx';
+import { useAuthStore } from '@/stores/useAuthStore.ts';
 
 interface IPinboardFormModalProps {
   mode: 'new' | 'edit';
@@ -28,10 +34,44 @@ export default NiceModal.create(function PinboardFormModal({
   const modal = useModal();
   const queryClient = useQueryClient();
   const [formLoading, setFormLoading] = useState(false);
+  const loginUser = useAuthStore((s) => s.user);
 
-  const createMutation = useMutation({
-    mutationFn: (newPinboard: IPinboard) => createPinboard(newPinboard),
-    onSuccess: () => {
+  const createMutation = useMutation<IPinboardExtended, DefaultError, IPinboard>({
+    mutationFn: async (newPinboard: IPinboard) => {
+      const newId = await createPinboard(newPinboard);
+      return {
+        ...newPinboard,
+        id: newId,
+        userId: loginUser?.userId as number,
+        username: loginUser?.name as string,
+        userAvatarUrl: loginUser?.avatarUrl || null,
+        coverUrls: [],
+        createdAt: null,
+        updatedAt: null,
+      };
+    },
+    onSuccess: (newBoard) => {
+      queryClient.setQueriesData<InfiniteData<IPinboardsPaged>>(
+        {
+          predicate: (query) =>
+            Array.isArray(query.queryKey) &&
+            query.queryKey[0] === 'paged-pinboards' &&
+            !query.queryKey[1]?.search &&
+            !query.queryKey[1]?.stream &&
+            !query.queryKey[1]?.userId,
+        },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page, pageIdx) =>
+              pageIdx === oldData.pages.length - 1
+                ? { ...page, data: [...page.data, newBoard] }
+                : page,
+            ),
+          };
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ['pinboards'] });
     },
     onError: (errors) => {
@@ -41,8 +81,26 @@ export default NiceModal.create(function PinboardFormModal({
 
   const editMutation = useMutation({
     mutationFn: (payload: IPinboard) => updatePinboard(pinboardId as number, payload),
-    onSuccess: () => {
+    onSuccess: (_i, payload) => {
+      queryClient.setQueriesData<InfiniteData<IPinboardsPaged>>(
+        {
+          queryKey: ['paged-pinboards'],
+        },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((p) => ({
+              ...p,
+              data: p.data.map((board) =>
+                board.id === pinboardId ? { ...board, ...payload } : board,
+              ),
+            })),
+          };
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+      queryClient.invalidateQueries({ queryKey: ['pinboard', pinboardId] });
     },
     onError: (errors) => {
       console.log('errors', errors);

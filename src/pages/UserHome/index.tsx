@@ -17,14 +17,14 @@ import DeletePromptModal from '@/components/DeletePromptModal.tsx';
 import { FaUserPlus } from 'react-icons/fa6';
 
 export default function UserHome() {
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const params = useParams();
   const userId = Number(params.userId);
   const [viewBy, setViewBy] = useState<'pin' | 'board'>('pin');
   const deletePrompt = useModal(DeletePromptModal);
 
   const { data: userData } = useQuery<User>({
-    queryKey: ['users', userId],
+    queryKey: ['user', userId],
     queryFn: async () => await api.get(`/users/${userId}`).then((rsp) => rsp.data),
     enabled: !!userId,
   });
@@ -35,7 +35,7 @@ export default function UserHome() {
     likes: number;
     repins: number;
   }>({
-    queryKey: ['stats', userId],
+    queryKey: ['user-stats', userId],
     queryFn: async () => await api.get(`/users/${userId}/statistic`).then((rsp) => rsp.data),
     enabled: !!userId,
   });
@@ -100,7 +100,7 @@ export default function UserHome() {
         </VStack>
         <VStack justifyContent="space-between" alignItems="flex-end">
           <HStack>
-            {user?.userId !== userId && !isFriend && (
+            {loginUser?.userId !== userId && !isFriend && (
               <Button
                 onClick={() => {
                   sendFriendRequest(userId);
@@ -110,7 +110,7 @@ export default function UserHome() {
                 Add Friend
               </Button>
             )}
-            {user?.userId !== userId && isFriend && (
+            {loginUser?.userId !== userId && isFriend && (
               <Button
                 onClick={() => {
                   deletePrompt.show({

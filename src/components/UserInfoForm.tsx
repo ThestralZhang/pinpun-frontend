@@ -18,7 +18,8 @@ interface UserInfoFormProps {
 
 export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const initRef = useRef(false);
   useEffect(() => {
@@ -47,9 +48,9 @@ export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
   });
 
   const { isLoading } = useQuery({
-    queryKey: ['user', user?.userId],
+    queryKey: ['user', loginUser?.userId],
     queryFn: async () =>
-      api.get(`/users/${user?.userId}`).then((rsp) => {
+      api.get(`/users/${loginUser?.userId}`).then((rsp) => {
         initRef.current = true;
         const formData = {
           username: rsp.data.name,
@@ -63,7 +64,7 @@ export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
         reset(formData);
         return rsp.data;
       }),
-    enabled: !initRef.current && !!user?.userId && mode === 'edit',
+    enabled: !initRef.current && !!loginUser?.userId && mode === 'edit',
   });
 
   const onSubmit = async (data: SignUpForm) => {
@@ -75,6 +76,13 @@ export default function UserInfoForm({ mode = 'new' }: UserInfoFormProps) {
     } else if (mode === 'edit') {
       await updateInfo({ ...payload, avatarUrl: avatar.url });
       setOriginalFormData(data);
+      setUser({
+        userId: loginUser?.userId as number,
+        name: data.username,
+        email: data.email,
+        avatarUrl: data.avatar.url,
+        about: data.about,
+      });
     }
   };
 

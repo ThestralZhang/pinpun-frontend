@@ -19,7 +19,7 @@ export default NiceModal.create(function PictureDetailModal({
   const modal = useModal();
 
   const { data: pictureData } = useQuery<IPictureExtended>({
-    queryKey: ['pictures', pictureId],
+    queryKey: ['picture-item', pictureId],
     queryFn: () => getPictureById(pinboardId, pictureId),
   });
 

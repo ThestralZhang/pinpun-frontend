@@ -16,6 +16,7 @@ import FriendSettings from '@/pages/FriendSettings';
 import UserHome from '@/pages/UserHome';
 import NiceModal from '@ebay/nice-modal-react';
 import PinboardView from '@/pages/PinboardView';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,7 @@ export default function App() {
               {/* private */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<Explore />} />
-                <Route path="expore" element={<Explore />} />
+                <Route path="explore" element={<Explore />} />
                 <Route path="follows" element={<Follows />} />
                 <Route path="my-pins" element={<MyPins />} />
                 <Route path="settings/profile" element={<ProfileSettings />} />
@@ -57,6 +58,7 @@ export default function App() {
           </Routes>
         </NiceModal.Provider>
       </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

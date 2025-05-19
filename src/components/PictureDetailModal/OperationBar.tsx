@@ -16,6 +16,7 @@ import { getPinboardsByUser } from '@/api/pinboard.tsx';
 import { useModal } from '@ebay/nice-modal-react';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
 import DeletePromptModal from '@/components/DeletePromptModal.tsx';
+import { useMemo } from 'react';
 
 export default function OperationBar({
   pictureData,
@@ -24,7 +25,7 @@ export default function OperationBar({
   pictureData: IPictureExtended | undefined;
   onClose: () => void;
 }) {
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const pictureFormModal = useModal(PictureFormModal);
   const deletePromptModal = useModal(DeletePromptModal);
 
@@ -44,10 +45,13 @@ export default function OperationBar({
   };
 
   const { data: pinboards } = useQuery({
-    queryKey: ['pinboards', { userId: user?.userId }],
-    queryFn: () => getPinboardsByUser(user?.userId),
-    select: (data) => data.map((b) => ({ id: b.id, name: b.title })),
+    queryKey: ['pinboards', { userId: loginUser?.userId }],
+    queryFn: () => getPinboardsByUser(loginUser?.userId),
   });
+  const memoPinboards = useMemo<{ id: number; name: string }[]>(
+    () => (pinboards ? pinboards.map((b) => ({ id: b.id, name: b.title })) : []),
+    [],
+  );
 
   if (!pictureData) {
     return <Placeholder.Graph active className="w-full! h-[60px]! rounded-2xl mt-5" />;
@@ -91,7 +95,7 @@ export default function OperationBar({
           transform: 'translateY(1px)',
         }}
       >
-        {pinboards?.map((b) => (
+        {memoPinboards?.map((b) => (
           <Dropdown.Item key={b.id} eventKey={b.id} className="block! truncate!">
             {b.name}
           </Dropdown.Item>
@@ -129,7 +133,7 @@ export default function OperationBar({
       {/*    }*/}
       {/*  }}*/}
       {/*/>*/}
-      {pictureData.originalUserId === user?.userId && !pictureData.isRepin && (
+      {pictureData.originalUserId === loginUser?.userId && !pictureData.isRepin && (
         <IconButton
           icon={<MdEdit className="text-blue-500 scale-125" />}
           size="md"
@@ -146,7 +150,7 @@ export default function OperationBar({
           }}
         />
       )}
-      {pictureData.userId === user?.userId && (
+      {pictureData.userId === loginUser?.userId && (
         <IconButton
           icon={<FaTrashCan className="text-blue-500 scale-125" />}
           size="md"

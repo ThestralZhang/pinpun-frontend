@@ -5,7 +5,7 @@ import UserAvatar from '@/components/UserAvatar.tsx';
 import { MdPersonOff } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { removeFriend } from '@/api/friend.ts';
 import { useModal } from '@ebay/nice-modal-react';
 import DeletePromptModal from '@/components/DeletePromptModal.tsx';
@@ -18,9 +18,16 @@ function UserCard(props: UserCardProps) {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const deletePrompt = useModal(DeletePromptModal);
+  const queryClient = useQueryClient();
 
   const removeFriendMutation = useMutation({
     mutationFn: (userId: number) => removeFriend(userId),
+    onSuccess: () => {
+      queryClient.setQueriesData<User[]>({ queryKey: ['friends'] }, (oldData) => {
+        if (!oldData) return oldData;
+        return oldData.filter((u) => u.userId !== props.userId);
+      });
+    },
   });
 
   return (
@@ -56,7 +63,8 @@ function UserCard(props: UserCardProps) {
               circle
               className="shadow-lg bg-white"
               title="Remove Friend"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 deletePrompt.show({
                   content: 'You are going to remove this friend.\nAre you confirmed to continue?',
                   onDelete: async () => {

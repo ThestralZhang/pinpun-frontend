@@ -34,7 +34,7 @@ interface PictureGalleryProps {
 }
 
 export default function PictureGallery({ params, fetchFn }: PictureGalleryProps) {
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -48,10 +48,14 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
   }, []);
 
   const { data: pinboards } = useQuery({
-    queryKey: ['pinboard-list', { userId: user?.userId }],
-    queryFn: () => getPinboardsByUser(user?.userId),
-    select: (data) => data.map((b) => ({ id: b.id, name: b.title })),
+    queryKey: ['pinboards', { userId: loginUser?.userId }],
+    queryFn: () => getPinboardsByUser(loginUser?.userId),
   });
+
+  const pinboardList = useMemo<{ id: number; name: string }[]>(
+    () => (pinboards ? pinboards.map((b) => ({ id: b.id, name: b.title })) : []),
+    [pinboards],
+  );
 
   const {
     data: infinitePictureData,
@@ -63,7 +67,7 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
     error,
     refetch,
   } = useInfiniteQuery<IPicturesPaged>({
-    queryKey: ['picture-list', params],
+    queryKey: ['paged-pictures', params],
     queryFn: ({ pageParam }) => fetchFn({ ...params, page: pageParam as number }),
     initialPageParam: 1,
     getNextPageParam: (lastPageData, allPageData) => {
@@ -72,14 +76,13 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
   // Pull-to-refresh: re-fetch page 1
   const handleRefresh = async () => {
     queryClient.removeQueries({
-      queryKey: ['picture-list', params],
+      queryKey: ['paged-pictures', params],
       exact: true,
     });
     await refetch();
@@ -120,7 +123,7 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
         <Masonry breakpointCols={breakpointCols} className="flex -mx-2" columnClassName="px-2">
           {pictures.map((pic) => (
             <div key={`pic-${pic.pinboardId}-${pic.id}`}>
-              <PictureCard pinboards={pinboards} className="mb-4" {...pic} />
+              <PictureCard pinboards={pinboardList} className="mb-4" {...pic} />
             </div>
           ))}
         </Masonry>

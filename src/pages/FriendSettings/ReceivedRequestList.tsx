@@ -1,5 +1,5 @@
 import { Button, Card, Divider, HStack, List, Placeholder, VStack } from 'rsuite';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   acceptFriendRequest,
   getReceivedFriendRequests,
@@ -10,12 +10,14 @@ import { getDateTimeString } from '@/utils';
 import { FaCheck, FaCircleCheck, FaCircleXmark, FaRegClock, FaXmark } from 'react-icons/fa6';
 import classnames from 'classnames';
 import { useNavigate } from 'react-router-dom';
+import type { FriendRequest } from '@/types';
 
 export default function ReceivedRequestList() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: requestList } = useQuery({
-    queryKey: ['receivedRequests'],
+    queryKey: ['received-requests'],
     queryFn: () => getReceivedFriendRequests(),
   });
 
@@ -23,9 +25,33 @@ export default function ReceivedRequestList() {
     mutationFn: (userId: number) => acceptFriendRequest(userId),
   });
 
+  const onAccept = async (userId: number, requestedAt: Date) => {
+    await acceptMutation.mutateAsync(userId);
+    queryClient.setQueriesData<FriendRequest[]>({ queryKey: ['received-requests'] }, (oldData) => {
+      if (!oldData) return oldData;
+      return oldData.map((r) =>
+        r.userId === userId && r.requestedAt.getTime() === requestedAt.getTime()
+          ? { ...r, status: 'ACCEPTED' }
+          : r,
+      );
+    });
+  };
+
   const rejectMutation = useMutation({
     mutationFn: (userId: number) => rejectFriendRequest(userId),
   });
+
+  const onReject = async (userId: number, requestedAt: Date) => {
+    await rejectMutation.mutateAsync(userId);
+    queryClient.setQueriesData<FriendRequest[]>({ queryKey: ['received-requests'] }, (oldData) => {
+      if (!oldData) return oldData;
+      return oldData.map((r) =>
+        r.userId === userId && r.requestedAt.getTime() === requestedAt.getTime()
+          ? { ...r, status: 'REJECTED' }
+          : r,
+      );
+    });
+  };
 
   if (!requestList) {
     return (
@@ -88,8 +114,8 @@ export default function ReceivedRequestList() {
                     appearance="subtle"
                     size="sm"
                     color="green"
-                    className="hover:text-white! font-bold! text-blue-400!"
-                    onClick={() => acceptMutation.mutateAsync(r.userId)}
+                    className="hover:text-white! font-bold! text-gray-600!"
+                    onClick={() => onAccept(r.userId, r.requestedAt)}
                   >
                     <FaCheck className="mr-1" />
                     Accept
@@ -98,8 +124,8 @@ export default function ReceivedRequestList() {
                     appearance="subtle"
                     size="sm"
                     color="red"
-                    className="hover:text-white! font-bold! text-blue-400!"
-                    onClick={() => rejectMutation.mutateAsync(r.userId)}
+                    className="hover:text-white! font-bold! text-gray-600!"
+                    onClick={() => onReject(r.userId, r.requestedAt)}
                   >
                     <FaXmark className="mr-2" />
                     Reject

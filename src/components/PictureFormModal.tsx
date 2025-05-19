@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { ObjectSchema } from 'yup';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { IPicture, IPictureFormInputs } from '@/types/picture.ts';
 import { createPicture, getPictureById, updatePicture } from '@/api/picture.ts';
 import type { IPinboardExtended } from '@/types';
@@ -88,19 +88,18 @@ export default NiceModal.create(function PictureFormModal({
   pinboardId?: number;
 }) {
   const modal = useModal();
-  const queryClient = useQueryClient();
   const [formLoading, setFormLoading] = useState(false);
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
 
   const { data: pinboards = [] } = useQuery<IPinboardExtended[]>({
-    queryKey: ['pinboards', { userId: user?.userId }],
-    queryFn: () => getPinboardsByUser(user?.userId),
+    queryKey: ['pinboards', { userId: loginUser?.userId }],
+    queryFn: () => getPinboardsByUser(loginUser?.userId),
   });
 
   const createMutation = useMutation({
     mutationFn: (newPicture: IPicture) => createPicture(newPicture),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pictures'] });
+      // queryClient.invalidateQueries({ queryKey: ['pictures'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -110,7 +109,7 @@ export default NiceModal.create(function PictureFormModal({
   const editMutation = useMutation({
     mutationFn: (payload: IPicture) => updatePicture(pictureId as number, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pictures'] });
+      // queryClient.invalidateQueries({ queryKey: ['pictures'] });
     },
     onError: (errors) => {
       console.log('errors', errors);

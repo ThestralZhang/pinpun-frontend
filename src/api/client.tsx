@@ -22,17 +22,18 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response) {
-      if (err.response.status === 401) {
+      if (err.response.status === 401 || err.response.status === 403) {
         useAuthStore.getState().logout();
         window.location.href = '/login';
-      } else if (err.response.status === 403) {
-        toaster.push(
-          <Message showIcon type="error" header="Access Denied">
-            You don’t have permission to do that.
-          </Message>,
-          { placement: 'bottomEnd', duration: 3000 },
-        );
       }
+      // else if (err.response.status === 403) {
+      //   toaster.push(
+      //     <Message showIcon type="error" header="Access Denied">
+      //       You don’t have permission to do that.
+      //     </Message>,
+      //     { placement: 'bottomEnd', duration: 3000 },
+      //   );
+      // }
     } else {
       // fallback for network errors
       toaster.push(

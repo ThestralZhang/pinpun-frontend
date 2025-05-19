@@ -11,7 +11,7 @@ export default function SentRequestList() {
   const navigate = useNavigate();
 
   const { data: requestList } = useQuery({
-    queryKey: ['sentRequests'],
+    queryKey: ['sent-requests'],
     queryFn: () => getSentFriendRequests(),
   });
 

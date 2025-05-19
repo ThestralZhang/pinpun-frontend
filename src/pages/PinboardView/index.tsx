@@ -1,7 +1,12 @@
 import { Button, Dropdown, HStack, Placeholder, VStack } from 'rsuite';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { followPinboard, getPinboardById, unfollowPinboard } from '@/api/pinboard.tsx';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deletePinboard,
+  followPinboard,
+  getPinboardById,
+  unfollowPinboard,
+} from '@/api/pinboard.tsx';
 import { getPicturesInPinboard } from '@/api/picture.ts';
 import PictureGallery from '@/components/PictureGallery.tsx';
 import UserAvatar from '@/components/UserAvatar.tsx';
@@ -11,16 +16,21 @@ import { getStreams } from '@/api/stream.ts';
 import { HiMiniEye, HiMiniEyeSlash } from 'react-icons/hi2';
 import { useModal } from '@ebay/nice-modal-react';
 import PinboardFormModal from '@/components/PinboardFormModal.tsx';
+import { RiChatPrivateFill } from 'react-icons/ri';
+import { FaTrashCan } from 'react-icons/fa6';
+import DeletePromptModal from '@/components/DeletePromptModal.tsx';
 
 export default function PinboardView() {
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const params = useParams();
   const pinboardId = Number(params.pinboardId);
   const pinboardModal = useModal(PinboardFormModal);
+  const deletePrompt = useModal(DeletePromptModal);
+  const queryClient = useQueryClient();
 
   const { data: pinboardData } = useQuery({
-    queryKey: ['pinboards', pinboardId],
+    queryKey: ['pinboard', pinboardId],
     queryFn: () => getPinboardById(pinboardId),
     enabled: !!pinboardId,
   });
@@ -35,6 +45,16 @@ export default function PinboardView() {
     return await getPicturesInPinboard(pinboardId, { page, size });
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deletePinboard(pinboardId),
+    onSuccess: () => {
+      navigate('/explore');
+      queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+      queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+      queryClient.removeQueries({ queryKey: ['pinboard', pinboardId] });
+    },
+  });
+
   if (!pinboardData) {
     return <Placeholder.Paragraph />;
   }
@@ -47,7 +67,12 @@ export default function PinboardView() {
         alignItems="stretch"
       >
         <VStack spacing={8}>
-          <div className="text-[36px] font-bold">{pinboardData.title}</div>
+          <HStack>
+            <div className="text-[36px] font-bold">{pinboardData.title}</div>
+            {!pinboardData.isPublic && (
+              <RiChatPrivateFill className="scale-150 shrink-0 grow-0 ml-2 text-gray-400" />
+            )}
+          </HStack>
           <div className="text-gray-500 text-lg">{pinboardData.description}</div>
           <HStack>
             <div>
@@ -71,7 +96,7 @@ export default function PinboardView() {
         </VStack>
         <VStack justifyContent="space-between" alignItems="flex-end">
           <HStack>
-            {user?.userId === pinboardData.userId && (
+            {loginUser?.userId === pinboardData.userId && (
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -82,8 +107,26 @@ export default function PinboardView() {
                 Edit
               </Button>
             )}
-            {user?.userId !== pinboardData.userId && (
+            {loginUser?.userId === pinboardData.userId && (
+              <Button
+                onClick={() => {
+                  deletePrompt.show({
+                    content: 'You are going to delete a pinboard.\n Are you confirmed to continue?',
+                    onDelete: async () => {
+                      deleteMutation.mutateAsync();
+                      deletePrompt.hide();
+                    },
+                  });
+                }}
+              >
+                <FaTrashCan className="mr-1" />
+                Delete
+              </Button>
+            )}
+            {loginUser?.userId !== pinboardData.userId && (
               <Dropdown
+                trigger="hover"
+                placement="bottomEnd"
                 title={
                   <HStack>
                     <HiMiniEye className="mr-1" />
@@ -102,8 +145,10 @@ export default function PinboardView() {
                 ))}
               </Dropdown>
             )}
-            {user?.userId !== pinboardData.userId && (
+            {loginUser?.userId !== pinboardData.userId && (
               <Dropdown
+                trigger="hover"
+                placement="bottomEnd"
                 title={
                   <HStack>
                     <HiMiniEyeSlash className="mr-1" />

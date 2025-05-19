@@ -20,7 +20,7 @@ export default function CommentArea({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const deletePromptModal = useModal(DeletePromptModal);
 
   const [myComment, setMyComment] = useState('');
@@ -100,7 +100,7 @@ export default function CommentArea({
                       <div className="break-words break-all mr-2">{c.content}</div>
                     </VStack>
                   </HStack>
-                  {hoveringId === c.id && c.userId === user?.userId && (
+                  {hoveringId === c.id && c.userId === loginUser?.userId && (
                     <IconButton
                       icon={<Close />}
                       className="absolute! top-0 right-2 hover:shadow-lg bg-white!"

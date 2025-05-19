@@ -27,7 +27,7 @@ export default function UserAvatar({
   ...rest
 }: UserAvatarProps) {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
 
   const onClickAvatar = (e: Event) => {
     e.stopPropagation();
@@ -56,7 +56,7 @@ export default function UserAvatar({
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   const onAddFriend = (e: any) => {
     e.stopPropagation?.();
-    if (!userId || userId === user?.userId || !hoverMenu) {
+    if (!userId || userId === loginUser?.userId || !hoverMenu) {
       return;
     }
     sendFriendRequest(userId as number);
@@ -68,7 +68,7 @@ export default function UserAvatar({
       trigger="hover"
       placement={placement}
       className="user-avatar-dropdown"
-      disabled={userId === user?.userId || !hoverMenu}
+      disabled={userId === loginUser?.userId || !hoverMenu}
     >
       <Dropdown.Item title="add friend" onClick={onAddFriend}>
         <FaUserPlus className="scale-125 text-blue-400" />

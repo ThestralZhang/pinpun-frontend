@@ -7,15 +7,15 @@ import PictureGallery from '@/components/PictureGallery.tsx';
 import PinboardGallery from '@/components/PinboardGallery.tsx';
 
 export default function MyPins() {
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
   const [viewBy, setViewBy] = useState<'pin' | 'board'>('pin');
 
   const getPictures = async (params: { page: number; size: number }) => {
-    return await getPicturesByUser({ page: params.page, size: params.size }, user?.userId);
+    return await getPicturesByUser({ page: params.page, size: params.size }, loginUser?.userId);
   };
 
   const getPinboards = async () => {
-    return await getPinboardsByUser(user?.userId).then((data) => ({
+    return await getPinboardsByUser(loginUser?.userId).then((data) => ({
       data,
       totalPages: 1,
       totalCount: data.length,
@@ -31,9 +31,9 @@ export default function MyPins() {
         </Nav>
       </HStack>
       {viewBy === 'pin' ? (
-        <PictureGallery params={{ size: 30, userId: user?.userId }} fetchFn={getPictures} />
+        <PictureGallery params={{ size: 30, userId: loginUser?.userId }} fetchFn={getPictures} />
       ) : (
-        <PinboardGallery params={{ size: 30, userId: user?.userId }} fetchFn={getPinboards} />
+        <PinboardGallery params={{ size: 30, userId: loginUser?.userId }} fetchFn={getPinboards} />
       )}
     </div>
   );

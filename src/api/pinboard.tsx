@@ -118,6 +118,18 @@ export async function updatePinboard(
     });
 }
 
+export async function deletePinboard(pinboardId: number): Promise<void> {
+  return await api
+    .delete(`/pinboards/${pinboardId}`)
+    .then(() => {
+      pushSuccessMessage('Pinboard deleted successfully!');
+    })
+    .catch((err: AxiosError) => {
+      pushErrorMessage('Failed to delete pinboard');
+      throw err;
+    });
+}
+
 export async function followPinboard(pinboardId: number, streamName: string): Promise<void> {
   await api
     .post(`/streams/${streamName}/pinboards/${pinboardId}`)

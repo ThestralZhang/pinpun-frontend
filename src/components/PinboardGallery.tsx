@@ -40,7 +40,10 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
     if (!el) return;
     const onScroll = () => setShowBackToTop(el.scrollTop > 300);
     el.addEventListener('scroll', onScroll);
-    return () => el.removeEventListener('scroll', onScroll);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+    };
   }, []);
 
   const { data: streams } = useQuery({
@@ -59,7 +62,7 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
     error,
     refetch,
   } = useInfiniteQuery<IPinboardsPaged>({
-    queryKey: ['pinboards', params],
+    queryKey: ['paged-pinboards', params],
     queryFn: ({ pageParam }) => fetchFn({ ...params, page: pageParam as number }),
     initialPageParam: 1,
     getNextPageParam: (lastPageData, allPageData) => {
@@ -68,14 +71,13 @@ export default function PinboardGallery({ params, fetchFn }: PinboardGalleryProp
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
   // Pull-to-refresh: re-fetch page 1
   const handleRefresh = async () => {
     queryClient.removeQueries({
-      queryKey: ['pinboards', params],
+      queryKey: ['paged-pinboards', params],
       exact: true,
     });
     await refetch();

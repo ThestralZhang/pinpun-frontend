@@ -1,9 +1,9 @@
-import { memo, useRef, useState } from 'react';
+import { memo, type MouseEvent, useRef, useState } from 'react';
 import { Card, ButtonGroup, IconButton, Dropdown, Whisper, Popover } from 'rsuite';
 import ImageDisplay from '@/components/ImageDisplay.tsx';
 import { MdEdit } from 'react-icons/md';
 import { useAuthStore } from '@/stores/useAuthStore.ts';
-import type { IPictureExtended } from '@/types/picture.ts';
+import type { IPictureExtended, IPicturesPaged } from '@/types/picture.ts';
 import { BsPinAngleFill } from 'react-icons/bs';
 import { pinPicture, toggleLikePicture } from '@/api/picture.ts';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
@@ -11,6 +11,7 @@ import { useModal } from '@ebay/nice-modal-react';
 import { GoHeart, GoHeartFill } from 'react-icons/go';
 import PictureDetailModal from '@/components/PictureDetailModal';
 import classnames from 'classnames';
+import { type InfiniteData, useQueryClient } from '@tanstack/react-query';
 
 export interface PictureCardProps extends IPictureExtended {
   pinboards?: { id: number; name: string }[];
@@ -21,7 +22,8 @@ function PictureCard(props: PictureCardProps) {
   const pictureFormModal = useModal(PictureFormModal);
   const pictureDetailModal = useModal(PictureDetailModal);
   const [hovered, setHovered] = useState(false);
-  const { user } = useAuthStore();
+  const loginUser = useAuthStore((s) => s.user);
+  const queryClient = useQueryClient();
 
   const renderPinboardsToggle = () => {
     return (
@@ -39,6 +41,32 @@ function PictureCard(props: PictureCardProps) {
   };
 
   const actionWrapperRef = useRef<HTMLDivElement>(null);
+
+  const onClickLike = async (e: MouseEvent) => {
+    e.stopPropagation();
+    await toggleLikePicture(props.id);
+    queryClient.setQueriesData<InfiniteData<IPicturesPaged>>(
+      { queryKey: ['paged-pictures'] },
+      (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            data: page.data.map((pic) =>
+              pic.id === props.id
+                ? {
+                    ...pic,
+                    likeByMe: !props.likeByMe,
+                    likeCount: props.likeByMe ? props.likeCount - 1 : props.likeCount + 1,
+                  }
+                : pic,
+            ),
+          })),
+        };
+      },
+    );
+  };
 
   return (
     <Card
@@ -76,13 +104,10 @@ function PictureCard(props: PictureCardProps) {
                 circle
                 className="shadow-lg bg-white inline-block"
                 title={props.likeByMe ? 'Unlike' : 'Like'}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleLikePicture(props.id);
-                }}
+                onClick={onClickLike}
               />
             </Whisper>
-            {props.originalUserId === user?.userId && !props.isRepin && (
+            {props.originalUserId === loginUser?.userId && !props.isRepin && (
               <IconButton
                 icon={<MdEdit className="text-blue-500 scale-125" />}
                 size="md"

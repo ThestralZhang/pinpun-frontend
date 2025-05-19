@@ -4,6 +4,7 @@ import { useModal } from '@ebay/nice-modal-react';
 import PinboardFormModal from '@/components/PinboardFormModal.tsx';
 import PictureFormModal from '@/components/PictureFormModal.tsx';
 import StreamFormModal from '@/components/StreamFormModal.tsx';
+import classnames from 'classnames';
 
 export default function NewItemDropdown({ expand }: { expand?: boolean }) {
   const pinboardModal = useModal(PinboardFormModal);
@@ -22,7 +23,10 @@ export default function NewItemDropdown({ expand }: { expand?: boolean }) {
       placement="rightEnd"
       noCaret
       renderToggle={renderToggle}
-      className="new-item-dropdown mb-5 text-center"
+      className={classnames(
+        { expanded: expand, folded: !expand },
+        'new-item-dropdown mb-5 text-center',
+      )}
       trigger="hover"
     >
       <Dropdown.Item onClick={() => pictureModal.show()}>New Pin</Dropdown.Item>

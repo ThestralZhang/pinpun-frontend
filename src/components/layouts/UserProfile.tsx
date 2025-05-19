@@ -5,15 +5,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function UserProfile() {
   const logout = useAuthStore((s) => s.logout);
-  const user = useAuthStore((s) => s.user);
+  const loginUser = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const onClick = () => {
-    if (user?.userId === null || user?.userId === undefined) {
+    if (loginUser?.userId === null || loginUser?.userId === undefined) {
       return;
     } else {
-      navigate(`/users/${user?.userId}`);
+      navigate(`/users/${loginUser?.userId}`);
     }
   };
 
@@ -23,9 +23,9 @@ export default function UserProfile() {
         My Account
       </div>
       <div className="text-gray-400 text-[14px]">User Name</div>
-      <div className="text-[14px]">{user?.name}</div>
+      <div className="text-[14px]">{loginUser?.name}</div>
       <div className="text-gray-400 text-[14px]">Email</div>
-      <div className="border-b-1 border-gray-400 pb-3 text-[14px]">{user?.email}</div>
+      <div className="border-b-1 border-gray-400 pb-3 text-[14px]">{loginUser?.email}</div>
       <div className="text-center">
         <Button
           onClick={() => {
@@ -46,9 +46,9 @@ export default function UserProfile() {
       <div className="fixed! top-2 right-2">
         <Avatar
           circle
-          src={user?.avatarUrl || undefined}
-          alt={user?.name.charAt(0).toUpperCase()}
-          title={user?.name}
+          src={loginUser?.avatarUrl || undefined}
+          alt={loginUser?.name.charAt(0).toUpperCase()}
+          title={loginUser?.name}
           onClick={onClick}
           className={'cursor-pointer hover:shadow-lg'}
           size="sm"
