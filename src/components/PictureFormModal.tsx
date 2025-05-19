@@ -122,6 +122,7 @@ export default NiceModal.create(function PictureFormModal({
       queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
       queryClient.invalidateQueries({ queryKey: ['pinboards'] });
       queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+      queryClient.invalidateQueries({ queryKey: ['user-stats'] });
     },
     onError: (errors) => {
       console.log('errors', errors);
@@ -133,7 +134,7 @@ export default NiceModal.create(function PictureFormModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
       queryClient.invalidateQueries({ queryKey: ['picture', pictureId] });
-      queryClient.invalidateQueries({ queryKey: ['tag'] });
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
     },
     onError: (errors) => {
       console.log('errors', errors);

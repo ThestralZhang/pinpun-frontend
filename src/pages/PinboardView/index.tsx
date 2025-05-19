@@ -51,6 +51,7 @@ export default function PinboardView() {
       queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
       queryClient.invalidateQueries({ queryKey: ['pinboards'] });
       queryClient.removeQueries({ queryKey: ['pinboard', pinboardId] });
+      queryClient.invalidateQueries({ queryKey: ['user-stats'] });
     },
   });
 
@@ -129,9 +130,15 @@ export default function PinboardView() {
                     Add to Stream
                   </HStack>
                 }
-                onSelect={(streamName: string, e) => {
+                onSelect={async (streamName: string, e) => {
                   e.stopPropagation();
-                  followPinboard(pinboardId, streamName);
+                  await followPinboard(pinboardId, streamName);
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pinboards', { stream: streamName }],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pictures', { stream: streamName }],
+                  });
                 }}
               >
                 {streams?.map((s) => (
@@ -151,9 +158,15 @@ export default function PinboardView() {
                     Remove from Stream
                   </HStack>
                 }
-                onSelect={(streamName: string, e) => {
+                onSelect={async (streamName: string, e) => {
                   e.stopPropagation();
-                  unfollowPinboard(pinboardId, streamName);
+                  await unfollowPinboard(pinboardId, streamName);
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pinboards', { stream: streamName }],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ['paged-pictures', { stream: streamName }],
+                  });
                 }}
               >
                 {streams?.map((s) => (

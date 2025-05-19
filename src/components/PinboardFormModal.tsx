@@ -50,29 +50,10 @@ export default NiceModal.create(function PinboardFormModal({
         updatedAt: new Date(),
       };
     },
-    onSuccess: (newBoard) => {
-      queryClient.setQueriesData<InfiniteData<IPinboardsPaged>>(
-        {
-          predicate: (query) =>
-            Array.isArray(query.queryKey) &&
-            query.queryKey[0] === 'paged-pinboards' &&
-            !query.queryKey[1]?.search &&
-            !query.queryKey[1]?.stream &&
-            !query.queryKey[1]?.userId,
-        },
-        (oldData) => {
-          if (!oldData) return oldData;
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page, pageIdx) =>
-              pageIdx === oldData.pages.length - 1
-                ? { ...page, data: [...page.data, newBoard] }
-                : page,
-            ),
-          };
-        },
-      );
-      queryClient.invalidateQueries({ queryKey: ['pinboards'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['paged-pinboards'] });
+      queryClient.invalidateQueries({ queryKey: ['pinboards', { userId: loginUser?.userId }] });
+      queryClient.invalidateQueries({ queryKey: ['user-stats'] });
     },
     onError: (errors) => {
       console.log('errors', errors);

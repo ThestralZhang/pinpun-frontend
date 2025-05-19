@@ -44,7 +44,10 @@ export default function PictureGallery({ params, fetchFn }: PictureGalleryProps)
     if (!el) return;
     const onScroll = () => setShowBackToTop(el.scrollTop > 300);
     el.addEventListener('scroll', onScroll);
-    return () => el.removeEventListener('scroll', onScroll);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
+    };
   }, []);
 
   const { data: pinboards } = useQuery({

@@ -213,10 +213,14 @@ export default function OperationBar({
               onDelete: async () => {
                 if (pictureData.isRepin) {
                   await deleteRepinnedPicture(pictureData.pinboardId as number, pictureData.id);
+                  queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
+                  queryClient.invalidateQueries({ queryKey: ['user-stats'] });
                 } else {
                   await deletePinnedPicture(pictureData.id);
+                  queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
+                  queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+                  queryClient.removeQueries({ queryKey: ['picture', pictureData.id] });
                 }
-                queryClient.invalidateQueries({ queryKey: ['paged-pictures'] });
                 onClose();
               },
             });
