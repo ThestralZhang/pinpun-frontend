@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build:
+      context: .
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --head -fsS http://localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - frontend
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./nginx/nginx.conf
